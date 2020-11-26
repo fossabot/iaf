@@ -75,11 +75,6 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>javax.ejb</groupId>
-			<artifactId>ejb-api</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
 			<groupId>javax.transaction</groupId>
 			<artifactId>transaction-api</artifactId>
 			<version>1.1</version>
@@ -116,14 +111,8 @@
 			<artifactId>commons-pool</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>commons-digester</groupId>
-			<artifactId>commons-digester</artifactId>
-			<exclusions>
-				<exclusion>
-					<groupId>commons-logging</groupId>
-					<artifactId>commons-logging</artifactId>
-				</exclusion>
-			</exclusions>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-digester3</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>commons-codec</groupId>
@@ -485,6 +474,10 @@
 			<version>${j2v8.version}</version>
 			<scope>runtime</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+		</dependency>
 
 		<!-- CXF -->
 		<dependency>
@@ -579,23 +572,36 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>commons-dbcp</groupId>
-			<artifactId>commons-dbcp</artifactId>
-			<version>1.4</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.hsqldb</groupId>
-			<artifactId>hsqldb</artifactId>
-			<version>2.3.0</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
-			<version>1.0.20061217</version>
+			<version>1.4.200</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>com.microsoft.sqlserver</groupId>
+			<artifactId>mssql-jdbc</artifactId>
+			<version>7.2.2.jre8</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>8.0.21</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mariadb.jdbc</groupId>
+			<artifactId>mariadb-java-client</artifactId>
+			<version>2.6.2</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<version>42.2.16</version>
+			<scope>test</scope>
+		</dependency>
+		
 		<dependency>
 			<groupId>com.unboundid</groupId>
 			<artifactId>unboundid-ldapsdk</artifactId>

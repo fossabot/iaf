@@ -25,12 +25,10 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import javax.annotation.security.RolesAllowed;
-import javax.servlet.ServletConfig;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -59,10 +57,8 @@ import nl.nn.adapterframework.util.XmlUtils;
 
 @Path("/")
 public final class TestPipeline extends Base {
-	@Context ServletConfig servletConfig;
 
 	protected Logger secLog = LogUtil.getLogger("SEC");
-
 	private boolean secLogMessage = AppConstants.getInstance().getBoolean("sec.log.includeMessage", false);
 
 	@POST
@@ -72,14 +68,14 @@ public final class TestPipeline extends Base {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	public Response postTestPipeLine(MultipartBody inputDataMap) throws ApiException {
-		Map<String, Object> result = new HashMap<String, Object>();
+		Map<String, Object> result = new HashMap<>();
 
 		IbisManager ibisManager = getIbisManager();
 		if (ibisManager == null) {
 			throw new ApiException("Config not found!");
 		}
 
-		String message = null, fileName = null;
+		String message = null;
 		InputStream file = null;
 
 		String adapterName = resolveStringFromMap(inputDataMap, "adapter");
@@ -93,7 +89,7 @@ public final class TestPipeline extends Base {
 
 		Attachment filePart = inputDataMap.getAttachment("file");
 		if(filePart != null) {
-			fileName = filePart.getContentDisposition().getParameter( "filename" );
+			String fileName = filePart.getContentDisposition().getParameter( "filename" );
 
 			if (StringUtils.endsWithIgnoreCase(fileName, ".zip")) {
 				try {
@@ -117,6 +113,7 @@ public final class TestPipeline extends Base {
 			try {
 				PipeLineResult plr = processMessage(adapter, message, secLogMessage);
 				result.put("state", plr.getState());
+				result.put("message", message);
 				result.put("result", plr.getResult().asString());
 			} catch (Exception e) {
 				throw new ApiException("exception on sending message", e);
@@ -184,9 +181,9 @@ public final class TestPipeline extends Base {
 		}
 		Date now = new Date();
 		PipeLineSessionBase.setListenerParameters(pls, messageId, technicalCorrelationId, now, now);
-		if (writeSecLogMessage) {
-			secLog.info("message [" + message + "]");
-		}
+
+		secLog.info(String.format("testing pipeline of adapter [%s] %s", adapter.getName(), (writeSecLogMessage ? "message [" + message + "]" : "")));
+
 		return adapter.processMessage(messageId, new Message(message), pls);
 	}
 }

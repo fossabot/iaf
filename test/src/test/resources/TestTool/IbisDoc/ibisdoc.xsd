@@ -29,11 +29,6 @@
         <xs:documentation>description of the adapter</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="errorMessageFormatter" type="xs:string">
-      <xs:annotation>
-        <xs:documentation />
-      </xs:annotation>
-    </xs:attribute>
     <xs:attribute name="errorState" type="xs:string" />
     <xs:attribute name="messageKeeperSize" type="xs:string">
       <xs:annotation>
@@ -261,7 +256,7 @@
     </xs:attribute>
     <xs:attribute name="createFolder" type="xs:string">
       <xs:annotation>
-        <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, the folder to move to is created if it does not exist (default: false)</xs:documentation>
+        <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, the folder to move or copy to is created if it does not exist (default: false)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="destination" type="xs:string">
@@ -301,7 +296,12 @@
     </xs:attribute>
     <xs:attribute name="numberOfBackups" type="xs:string">
       <xs:annotation>
-        <xs:documentation>for action=write, and for action=append with rotateSize&gt;0: the number of backup files that is kept (default: 0)</xs:documentation>
+        <xs:documentation>for action=write, and for action=append with rotateSize&gt;0: the number of backup files that is kept. The inputFolder must point to the directory where the file resides (default: 0)</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="overwrite" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, for actions move, copy or rename, the destination file is overwritten if it already exists (default: false)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="proxyHost" type="xs:string">
@@ -316,12 +316,12 @@
     </xs:attribute>
     <xs:attribute name="rotateDays" type="xs:string">
       <xs:annotation>
-        <xs:documentation>for action=append: when set to a positive number, the file is rotated each day, and this number of files is kept (default: 0)</xs:documentation>
+        <xs:documentation>for action=append: when set to a positive number, the file is rotated each day, and this number of files is kept. The inputFolder must point to the directory where the file resides (default: 0)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="rotateSize" type="xs:string">
       <xs:annotation>
-        <xs:documentation>for action=append: when set to a positive number, the file is rotated when it has reached the specified size, and the number of files specified in numberOfBackups is kept (default: 0)</xs:documentation>
+        <xs:documentation>for action=append: when set to a positive number, the file is rotated when it has reached the specified size, and the number of files specified in numberOfBackups is kept. Size is specified in plain bytes, suffixes like 'K', 'M' or 'G' are not recognized. The inputFolder must point to the directory where the file resides (default: 0)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="secretKey" type="xs:string">
@@ -396,7 +396,7 @@
     </xs:attribute>
     <xs:attribute name="createFolder" type="xs:string">
       <xs:annotation>
-        <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, the folder to move to is created if it does not exist (default: false)</xs:documentation>
+        <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, the folder to move or copy to is created if it does not exist (default: false)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="destination" type="xs:string">
@@ -436,7 +436,12 @@
     </xs:attribute>
     <xs:attribute name="numberOfBackups" type="xs:string">
       <xs:annotation>
-        <xs:documentation>for action=write, and for action=append with rotateSize&gt;0: the number of backup files that is kept (default: 0)</xs:documentation>
+        <xs:documentation>for action=write, and for action=append with rotateSize&gt;0: the number of backup files that is kept. The inputFolder must point to the directory where the file resides (default: 0)</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="overwrite" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, for actions move, copy or rename, the destination file is overwritten if it already exists (default: false)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="proxyHost" type="xs:string">
@@ -451,12 +456,12 @@
     </xs:attribute>
     <xs:attribute name="rotateDays" type="xs:string">
       <xs:annotation>
-        <xs:documentation>for action=append: when set to a positive number, the file is rotated each day, and this number of files is kept (default: 0)</xs:documentation>
+        <xs:documentation>for action=append: when set to a positive number, the file is rotated each day, and this number of files is kept. The inputFolder must point to the directory where the file resides (default: 0)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="rotateSize" type="xs:string">
       <xs:annotation>
-        <xs:documentation>for action=append: when set to a positive number, the file is rotated when it has reached the specified size, and the number of files specified in numberOfBackups is kept (default: 0)</xs:documentation>
+        <xs:documentation>for action=append: when set to a positive number, the file is rotated when it has reached the specified size, and the number of files specified in numberOfBackups is kept. Size is specified in plain bytes, suffixes like 'K', 'M' or 'G' are not recognized. The inputFolder must point to the directory where the file resides (default: 0)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="secretKey" type="xs:string">
@@ -4652,8 +4657,6 @@
         <xs:element name="Afm2EdiFactSender" type="Afm2EdiFactSenderType" minOccurs="0" />
         <xs:element name="AmazonS3Sender" type="AmazonS3SenderType" minOccurs="0" />
         <xs:element name="BisJmsSender" type="BisJmsSenderType" minOccurs="0" />
-        <xs:element name="CmisHttpSender" type="CmisHttpSenderType" minOccurs="0" />
-        <xs:element name="CmisSender" type="CmisSenderType" minOccurs="0" />
         <xs:element name="CommandSender" type="CommandSenderType" minOccurs="0" />
         <xs:element name="DelaySender" type="DelaySenderType" minOccurs="0" />
         <xs:element name="DirectQuerySender" type="DirectQuerySenderType" minOccurs="0" />
@@ -4761,6 +4764,11 @@
         <xs:documentation>xpath expression to extract audit trail from message</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+    <xs:attribute name="avoidLocking" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>If true, then select queries are executed in a way that avoids taking locks, e.g. with isolation mode 'read committed' instead of 'repeatable read'. (default: false)</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="blobCharset" type="xs:string">
       <xs:annotation>
         <xs:documentation>charset used to read and write blobs (default: utf-8)</xs:documentation>
@@ -4816,7 +4824,11 @@
         <xs:documentation>xpath expression to extract correlationid from message</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="datasourceName" type="xs:string" />
+    <xs:attribute name="datasourceName" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>JNDI name of datasource to be used, can be configured via jmsRealm, too</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="durationThreshold" type="xs:string">
       <xs:annotation>
         <xs:documentation>(default: If durationThreshold &gt;=0 and the duration of the message processing exceeded the value specified (in milliseconds) the message is logged informatory)</xs:documentation>
@@ -4912,8 +4924,16 @@
         <xs:documentation>either MESSAGEID or CORRELATIONID. For asynchronous communication, the server side may either use the messageID or the correlationID in the correlationID field of the reply message. Use this property to set the behaviour of the reply-listener. (default: correlationid)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="lockRows" type="xs:string" />
-    <xs:attribute name="lockWait" type="xs:string" />
+    <xs:attribute name="lockRows" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>When set &lt;code&gt;true&lt;/code&gt;, exclusive row-level locks are obtained on all the rows identified by the select statement (e.g. by appending ' FOR UPDATE NOWAIT SKIP LOCKED' to the end of the query) (default: false)</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="lockWait" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>when set and &gt;=0, ' FOR UPDATE WAIT #' is used instead of ' FOR UPDATE NOWAIT SKIP LOCKED' (default: -1)</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="logIntermediaryResults" type="xs:string" />
     <xs:attribute name="maxChildThreads" type="xs:string">
       <xs:annotation>
@@ -5031,6 +5051,11 @@
         <xs:documentation>when set, the processing continues directly at the forward of this pipe, without executing the pipe itself (default: false)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+    <xs:attribute name="sqlDialect" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>If set, the SQL dialect in which the queries are written and should be translated from to the actual SQL dialect</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="stopConditionXPathExpression" type="xs:string">
       <xs:annotation>
         <xs:documentation>Expression evaluated on each result if set. Iteration stops if condition returns anything other than an empty result. To test for the root element to have an attribute 'finished' with the value 'yes', the expression &lt;code&gt;*[@finished='yes']&lt;/code&gt; can be used. This can be used if the condition to stop can be derived from the item result. To stop after a maximum number of items has been processed, use &lt;code&gt;maxItems&lt;/code&gt;.Previous versions documented that &lt;code&gt;position()=2&lt;/code&gt; could be used. This is not working as expected; Use maxItems instead</xs:documentation>
@@ -5081,9 +5106,19 @@
         <xs:documentation>timeout (in seconds) of transaction started to process a message. (default: &lt;code&gt;0&lt;/code&gt; (use system default))</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+    <xs:attribute name="trimSpaces" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Remove trailing blanks from all result values. (default: true)</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="useInputForExtract" type="xs:string">
       <xs:annotation>
         <xs:documentation>when set &lt;code&gt;true&lt;/code&gt;, the input of a pipe is used to extract audit trail, correlationid and label (instead of the wrapped input) (default: true)</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="useNamedParams" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>When &lt;code&gt;true&lt;/code&gt;, every string in the message which equals &lt;code&gt;?{paramname+UNP_END+&lt;/code&gt; will be replaced by the setter method for the corresponding parameter. The parameters don't need to be in the correct order and unused parameters are skipped. (default: false)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="writeToSecLog" type="xs:string" />
@@ -5670,8 +5705,6 @@
         <xs:element name="Afm2EdiFactSender" type="Afm2EdiFactSenderType" minOccurs="0" />
         <xs:element name="AmazonS3Sender" type="AmazonS3SenderType" minOccurs="0" />
         <xs:element name="BisJmsSender" type="BisJmsSenderType" minOccurs="0" />
-        <xs:element name="CmisHttpSender" type="CmisHttpSenderType" minOccurs="0" />
-        <xs:element name="CmisSender" type="CmisSenderType" minOccurs="0" />
         <xs:element name="CommandSender" type="CommandSenderType" minOccurs="0" />
         <xs:element name="DelaySender" type="DelaySenderType" minOccurs="0" />
         <xs:element name="DirectQuerySender" type="DirectQuerySenderType" minOccurs="0" />
@@ -5779,6 +5812,11 @@
         <xs:documentation>xpath expression to extract audit trail from message</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+    <xs:attribute name="avoidLocking" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>If true, then select queries are executed in a way that avoids taking locks, e.g. with isolation mode 'read committed' instead of 'repeatable read'. (default: false)</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="blockSize" type="xs:string">
       <xs:annotation>
         <xs:documentation>Controls multiline behaviour. when set to a value greater than 0, it specifies the number of rows send in a block to the sender. (default: 0 (one line at a time, no prefix of suffix))</xs:documentation>
@@ -5824,7 +5862,11 @@
         <xs:documentation>xpath expression to extract correlationid from message</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="datasourceName" type="xs:string" />
+    <xs:attribute name="datasourceName" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>JNDI name of datasource to be used, can be configured via jmsRealm, too</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="durationThreshold" type="xs:string">
       <xs:annotation>
         <xs:documentation>(default: If durationThreshold &gt;=0 and the duration of the message processing exceeded the value specified (in milliseconds) the message is logged informatory)</xs:documentation>
@@ -5920,8 +5962,16 @@
         <xs:documentation>either MESSAGEID or CORRELATIONID. For asynchronous communication, the server side may either use the messageID or the correlationID in the correlationID field of the reply message. Use this property to set the behaviour of the reply-listener. (default: correlationid)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="lockRows" type="xs:string" />
-    <xs:attribute name="lockWait" type="xs:string" />
+    <xs:attribute name="lockRows" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>When set &lt;code&gt;true&lt;/code&gt;, exclusive row-level locks are obtained on all the rows identified by the select statement (e.g. by appending ' FOR UPDATE NOWAIT SKIP LOCKED' to the end of the query) (default: false)</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="lockWait" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>when set and &gt;=0, ' FOR UPDATE WAIT #' is used instead of ' FOR UPDATE NOWAIT SKIP LOCKED' (default: -1)</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="logIntermediaryResults" type="xs:string" />
     <xs:attribute name="maxChildThreads" type="xs:string">
       <xs:annotation>
@@ -6039,6 +6089,11 @@
         <xs:documentation>when set, the processing continues directly at the forward of this pipe, without executing the pipe itself (default: false)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+    <xs:attribute name="sqlDialect" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>If set, the SQL dialect in which the queries are written and should be translated from to the actual SQL dialect</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="stopConditionXPathExpression" type="xs:string">
       <xs:annotation>
         <xs:documentation>Expression evaluated on each result if set. Iteration stops if condition returns anything other than an empty result. To test for the root element to have an attribute 'finished' with the value 'yes', the expression &lt;code&gt;*[@finished='yes']&lt;/code&gt; can be used. This can be used if the condition to stop can be derived from the item result. To stop after a maximum number of items has been processed, use &lt;code&gt;maxItems&lt;/code&gt;.Previous versions documented that &lt;code&gt;position()=2&lt;/code&gt; could be used. This is not working as expected; Use maxItems instead</xs:documentation>
@@ -6089,860 +6144,25 @@
         <xs:documentation>timeout (in seconds) of transaction started to process a message. (default: &lt;code&gt;0&lt;/code&gt; (use system default))</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+    <xs:attribute name="trimSpaces" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Remove trailing blanks from all result values. (default: true)</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="useInputForExtract" type="xs:string">
       <xs:annotation>
         <xs:documentation>when set &lt;code&gt;true&lt;/code&gt;, the input of a pipe is used to extract audit trail, correlationid and label (instead of the wrapped input) (default: true)</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="useNamedParams" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>When &lt;code&gt;true&lt;/code&gt;, every string in the message which equals &lt;code&gt;?{paramname+UNP_END+&lt;/code&gt; will be replaced by the setter method for the corresponding parameter. The parameters don't need to be in the correct order and unused parameters are skipped. (default: false)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="writeToSecLog" type="xs:string" />
     <xs:attribute name="xpathExpression" type="xs:string">
       <xs:annotation>
         <xs:documentation>Alternatively: xpath-expression to create stylesheet from</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-  </xs:complexType>
-  <xs:complexType name="CmisErrorSenderType">
-    <xs:sequence>
-      <xs:element name="Param" type="ParamType" minOccurs="0" maxOccurs="unbounded" />
-    </xs:sequence>
-    <xs:attribute name="action" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>specifies action to perform. Must be one of 
- * &lt;ul&gt;
- * &lt;li&gt;&lt;code&gt;get&lt;/code&gt;: get the content of a document (and optional the properties)&lt;/li&gt;
- * &lt;li&gt;&lt;code&gt;create&lt;/code&gt;: create a document&lt;/li&gt;
- * &lt;li&gt;&lt;code&gt;find&lt;/code&gt;: perform a query that returns properties&lt;/li&gt;
- * &lt;li&gt;&lt;code&gt;update&lt;/code&gt;: update the properties of an existing document&lt;/li&gt;
- * &lt;li&gt;&lt;code&gt;fetch&lt;/code&gt;: get the (meta)data of a folder or document&lt;/li&gt;
- * &lt;/ul&gt;</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="allowSelfSignedCertificates" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>Accept self signed certificates (default: false)</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="authAlias" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>alias used to obtain credentials for authentication to host</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="bindingType" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>'atompub', 'webservices' or 'browser' (default: 'atompub')</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="certificateAuthAlias" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>Auth Alias used to obtain certificate password</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="certificatePassword" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>Certificate Password</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="certificateUrl" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>Path (or resource url) to certificate to be used for authentication</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="defaultMediaType" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>(only used when &lt;code&gt;action=create&lt;/code&gt;) the mime type used to store the document when it's not set in the input message by a property (default: 'application/octet-stream')</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="fileContentSessionKey" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>when &lt;code&gt;action=create&lt;/code&gt;: the session key that contains the base64 encoded content of the file to use. when &lt;code&gt;action=get&lt;/code&gt; and &lt;code&gt;getproperties=true&lt;/code&gt;: the session key in which the base64 encoded content of the document is stored</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="fileInputStreamSessionKey" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>when &lt;code&gt;action=create&lt;/code&gt;: the session key that contains the input stream of the file to use. when &lt;code&gt;action=get&lt;/code&gt; and &lt;code&gt;getproperties=true&lt;/code&gt;: the session key in which the input stream of the document is stored</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="fileNameSessionKey" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>(only used when &lt;code&gt;action=create&lt;/code&gt;) the session key that contains the name of the file to use. if not set, the value of the property &lt;code&gt;filename&lt;/code&gt; from the input message is used</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="getDocumentContent" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>(only used when &lt;code&gt;action=get&lt;/code&gt;) if true, the attachment for the document is streamed to &lt;code&gt;fileInputStreamSessionKey&lt;/code&gt; otherwise only the properties are returned (default: true)</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="getProperties" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>(only used when &lt;code&gt;action=get&lt;/code&gt;) if true, the content of the document is streamed to &lt;code&gt;fileinputstreamsessionkey&lt;/code&gt; and all document properties are put in the result as a xml string (default: false)</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="ignoreCertificateExpiredException" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>Ignore expired certificate exceptions (default: false)</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="keepSession" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>if true, the session is not closed at the end and it will be used in the next call (default: true)</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="keyManagerAlgorithm" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>KeyManager Algorithm (default: pkix)</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="keystoreType" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>Keystore Type (default: pkcs12)</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="maxConnections" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>the maximum number of concurrent connections (default: 10)</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="name" type="xs:string" use="required">
-      <xs:annotation>
-        <xs:documentation>name of the sender</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="overrideEntryPointWSDL" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>override entrypoint wsdl by reading it from the classpath, overrides url attribute</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="password" type="xs:string">
-      <xs:annotation>
-        <xs:documentation />
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="proxyAuthAlias" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>Alias used to obtain credentials for authentication to proxy</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="proxyHost" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>Proxy host url</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="proxyPassword" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>Proxy Password</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="proxyPort" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>Proxy host port (default: 80)</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="proxyUserName" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>Proxy Username</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="repository" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>repository id</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="resultOnNotFound" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>(only used when &lt;code&gt;action=get&lt;/code&gt;) result returned when no document was found for the given id (e.g. '[not_found]'). if empty an exception is thrown</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="streamResultToServlet" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>(only used when &lt;code&gt;action=get&lt;/code&gt;) if true, the content of the document is streamed to the httpservletresponse object of the restservicedispatcher (instead of passed as a string) (default: false)</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="timeout" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>the connection timeout in seconds (default: 10)</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="trustManagerAlgorithm" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>TrustManager Algorithm (default: pkix)</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="truststore" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>Path (or resource url) to truststore to be used for authentication</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="truststoreAuthAlias" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>Alias used to obtain truststore password</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="truststorePassword" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>Truststore Password</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="truststoreType" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>Truststore Type (default: jks)</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="url" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>url to connect to</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="useRootFolder" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>(only used when &lt;code&gt;action=create&lt;/code&gt;) if true, the document is created in the root folder of the repository. otherwise the document is created in the repository (default: true)</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="userName" type="xs:string" />
-    <xs:attribute name="username" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>username used in authentication to host</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="verifyHostname" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>Ignore certificate hostname validation (default: true)</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-  </xs:complexType>
-  <xs:complexType name="CmisEventListenerType">
-    <xs:attribute name="applicationFaultsAsExceptions" type="xs:string" />
-    <xs:attribute name="name" type="xs:string" use="required">
-      <xs:annotation>
-        <xs:documentation>name of the listener as known to the adapter</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="running" type="xs:string" />
-  </xs:complexType>
-  <xs:complexType name="CmisHttpErrorSenderType">
-    <xs:sequence>
-      <xs:element name="Param" type="ParamType" minOccurs="0" maxOccurs="unbounded" />
-    </xs:sequence>
-    <xs:attribute name="allowSelfSignedCertificates" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>when true, self signed certificates are accepted (default: false)</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="authAlias" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>alias used to obtain credentials for authentication to host</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="authDomain" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>domain used in authentication to host (default:  )</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="certificate" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>resource url to certificate to be used for authentication</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="certificateAuthAlias" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>alias used to obtain certificate password</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="certificatePassword" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>certificate password (default:  )</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="charSet" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>charset of the request. Typically only used on PUT and POST requests. (default: UTF-8)</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="contentType" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>content-type (superset of mimetype + charset) of the request, for POST and PUT methods (default: text/html)</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="disableCookies" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>Disables the use of cookies, making the sender completely stateless (default: false)</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="followRedirects" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>when true, a redirect request will be honoured, e.g. to switch to https (default: true)</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="headersParams" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>comma separated list of parameter names which should be set as http headers</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="ignoreCertificateExpiredException" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>when true, the certificateexpiredexception is ignored (default: false)</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="keyManagerAlgorithm" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>(default:  )</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="keystoreType" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>(default: pkcs12)</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="maxConnections" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>the maximum number of concurrent connections (default: 10)</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="maxExecuteRetries" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>the maximum number of times it the execution is retried (default: 1)</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="methodType" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>type of method to be executed, either 'GET', 'POST', 'PUT', 'DELETE', 'HEAD' or 'REPORT' (default: GET)</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="name" type="xs:string" use="required">
-      <xs:annotation>
-        <xs:documentation>name of the sender</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="password" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>password used in authentication to host (default:  )</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="protocol" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>Secure socket protocol (such as 'SSL' and 'TLS') to use when a SSLContext object is generated. If empty the protocol 'SSL' is used (default: SSL)</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="proxyAuthAlias" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>alias used to obtain credentials for authentication to proxy</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="proxyHost" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>proxy host (default:  )</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="proxyPassword" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>proxy password (default:  )</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="proxyPort" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>proxy port (default: 80)</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="proxyRealm" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>proxy realm (default:  )</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="proxyUserName" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>proxy username (default:  )</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="resultStatusCodeSessionKey" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>if set, the status code of the http response is put in specified in the sessionkey and the (error or okay) response message is returned</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="staleChecking" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>controls whether connections checked to be stale, i.e. appear open, but are not. (default: true)</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="staleTimeout" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>Used when StaleChecking=true. Timeout when stale connections should be closed. (default: 5000)</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="styleSheetName" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>&gt;(only used when &lt;code&gt;xhtml=true&lt;/code&gt;) stylesheet to apply to the html response</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="timeout" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>timeout in ms of obtaining a connection/result. 0 means no timeout (default: 10000)</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="trustManagerAlgorithm" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>(default:  )</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="truststore" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>resource url to truststore to be used for authentication</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="truststoreAuthAlias" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>alias used to obtain truststore password</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="truststorePassword" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>truststore password (default:  )</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="truststoreType" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>type of truststore (default: jks)</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="url" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>URL or base of URL to be used</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="urlParam" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>parameter that is used to obtain url; overrides url-attribute. (default: url)</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="userName" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>username used in authentication to host</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="verifyHostname" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>when true, the hostname in the certificate will be checked against the actual hostname (default: true)</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="xhtml" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>when true, the html response is transformed to xhtml (default: false)</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-  </xs:complexType>
-  <xs:complexType name="CmisHttpSenderType">
-    <xs:sequence>
-      <xs:element name="Param" type="ParamType" minOccurs="0" maxOccurs="unbounded" />
-    </xs:sequence>
-    <xs:attribute name="allowSelfSignedCertificates" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>when true, self signed certificates are accepted (default: false)</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="authAlias" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>alias used to obtain credentials for authentication to host</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="authDomain" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>domain used in authentication to host (default:  )</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="certificate" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>resource url to certificate to be used for authentication</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="certificateAuthAlias" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>alias used to obtain certificate password</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="certificatePassword" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>certificate password (default:  )</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="charSet" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>charset of the request. Typically only used on PUT and POST requests. (default: UTF-8)</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="contentType" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>content-type (superset of mimetype + charset) of the request, for POST and PUT methods (default: text/html)</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="disableCookies" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>Disables the use of cookies, making the sender completely stateless (default: false)</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="followRedirects" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>when true, a redirect request will be honoured, e.g. to switch to https (default: true)</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="headersParams" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>comma separated list of parameter names which should be set as http headers</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="ignoreCertificateExpiredException" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>when true, the certificateexpiredexception is ignored (default: false)</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="keyManagerAlgorithm" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>(default:  )</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="keystoreType" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>(default: pkcs12)</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="maxConnections" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>the maximum number of concurrent connections (default: 10)</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="maxExecuteRetries" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>the maximum number of times it the execution is retried (default: 1)</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="methodType" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>type of method to be executed, either 'GET', 'POST', 'PUT', 'DELETE', 'HEAD' or 'REPORT' (default: GET)</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="name" type="xs:string" use="required">
-      <xs:annotation>
-        <xs:documentation>name of the sender</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="password" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>password used in authentication to host (default:  )</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="protocol" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>Secure socket protocol (such as 'SSL' and 'TLS') to use when a SSLContext object is generated. If empty the protocol 'SSL' is used (default: SSL)</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="proxyAuthAlias" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>alias used to obtain credentials for authentication to proxy</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="proxyHost" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>proxy host (default:  )</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="proxyPassword" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>proxy password (default:  )</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="proxyPort" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>proxy port (default: 80)</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="proxyRealm" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>proxy realm (default:  )</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="proxyUserName" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>proxy username (default:  )</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="resultStatusCodeSessionKey" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>if set, the status code of the http response is put in specified in the sessionkey and the (error or okay) response message is returned</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="staleChecking" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>controls whether connections checked to be stale, i.e. appear open, but are not. (default: true)</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="staleTimeout" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>Used when StaleChecking=true. Timeout when stale connections should be closed. (default: 5000)</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="styleSheetName" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>&gt;(only used when &lt;code&gt;xhtml=true&lt;/code&gt;) stylesheet to apply to the html response</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="timeout" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>timeout in ms of obtaining a connection/result. 0 means no timeout (default: 10000)</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="trustManagerAlgorithm" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>(default:  )</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="truststore" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>resource url to truststore to be used for authentication</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="truststoreAuthAlias" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>alias used to obtain truststore password</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="truststorePassword" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>truststore password (default:  )</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="truststoreType" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>type of truststore (default: jks)</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="url" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>URL or base of URL to be used</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="urlParam" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>parameter that is used to obtain url; overrides url-attribute. (default: url)</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="userName" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>username used in authentication to host</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="verifyHostname" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>when true, the hostname in the certificate will be checked against the actual hostname (default: true)</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="xhtml" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>when true, the html response is transformed to xhtml (default: false)</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-  </xs:complexType>
-  <xs:complexType name="CmisSenderType">
-    <xs:sequence>
-      <xs:element name="Param" type="ParamType" minOccurs="0" maxOccurs="unbounded" />
-    </xs:sequence>
-    <xs:attribute name="action" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>specifies action to perform. Must be one of 
- * &lt;ul&gt;
- * &lt;li&gt;&lt;code&gt;get&lt;/code&gt;: get the content of a document (and optional the properties)&lt;/li&gt;
- * &lt;li&gt;&lt;code&gt;create&lt;/code&gt;: create a document&lt;/li&gt;
- * &lt;li&gt;&lt;code&gt;find&lt;/code&gt;: perform a query that returns properties&lt;/li&gt;
- * &lt;li&gt;&lt;code&gt;update&lt;/code&gt;: update the properties of an existing document&lt;/li&gt;
- * &lt;li&gt;&lt;code&gt;fetch&lt;/code&gt;: get the (meta)data of a folder or document&lt;/li&gt;
- * &lt;/ul&gt;</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="allowSelfSignedCertificates" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>Accept self signed certificates (default: false)</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="authAlias" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>alias used to obtain credentials for authentication to host</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="bindingType" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>'atompub', 'webservices' or 'browser' (default: 'atompub')</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="certificateAuthAlias" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>Auth Alias used to obtain certificate password</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="certificatePassword" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>Certificate Password</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="certificateUrl" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>Path (or resource url) to certificate to be used for authentication</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="defaultMediaType" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>(only used when &lt;code&gt;action=create&lt;/code&gt;) the mime type used to store the document when it's not set in the input message by a property (default: 'application/octet-stream')</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="fileContentSessionKey" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>when &lt;code&gt;action=create&lt;/code&gt;: the session key that contains the base64 encoded content of the file to use. when &lt;code&gt;action=get&lt;/code&gt; and &lt;code&gt;getproperties=true&lt;/code&gt;: the session key in which the base64 encoded content of the document is stored</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="fileInputStreamSessionKey" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>when &lt;code&gt;action=create&lt;/code&gt;: the session key that contains the input stream of the file to use. when &lt;code&gt;action=get&lt;/code&gt; and &lt;code&gt;getproperties=true&lt;/code&gt;: the session key in which the input stream of the document is stored</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="fileNameSessionKey" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>(only used when &lt;code&gt;action=create&lt;/code&gt;) the session key that contains the name of the file to use. if not set, the value of the property &lt;code&gt;filename&lt;/code&gt; from the input message is used</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="getDocumentContent" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>(only used when &lt;code&gt;action=get&lt;/code&gt;) if true, the attachment for the document is streamed to &lt;code&gt;fileInputStreamSessionKey&lt;/code&gt; otherwise only the properties are returned (default: true)</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="getProperties" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>(only used when &lt;code&gt;action=get&lt;/code&gt;) if true, the content of the document is streamed to &lt;code&gt;fileinputstreamsessionkey&lt;/code&gt; and all document properties are put in the result as a xml string (default: false)</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="ignoreCertificateExpiredException" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>Ignore expired certificate exceptions (default: false)</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="keepSession" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>if true, the session is not closed at the end and it will be used in the next call (default: true)</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="keyManagerAlgorithm" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>KeyManager Algorithm (default: pkix)</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="keystoreType" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>Keystore Type (default: pkcs12)</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="maxConnections" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>the maximum number of concurrent connections (default: 10)</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="name" type="xs:string" use="required">
-      <xs:annotation>
-        <xs:documentation>name of the sender</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="overrideEntryPointWSDL" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>override entrypoint wsdl by reading it from the classpath, overrides url attribute</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="password" type="xs:string">
-      <xs:annotation>
-        <xs:documentation />
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="proxyAuthAlias" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>Alias used to obtain credentials for authentication to proxy</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="proxyHost" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>Proxy host url</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="proxyPassword" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>Proxy Password</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="proxyPort" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>Proxy host port (default: 80)</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="proxyUserName" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>Proxy Username</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="repository" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>repository id</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="resultOnNotFound" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>(only used when &lt;code&gt;action=get&lt;/code&gt;) result returned when no document was found for the given id (e.g. '[not_found]'). if empty an exception is thrown</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="streamResultToServlet" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>(only used when &lt;code&gt;action=get&lt;/code&gt;) if true, the content of the document is streamed to the httpservletresponse object of the restservicedispatcher (instead of passed as a string) (default: false)</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="timeout" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>the connection timeout in seconds (default: 10)</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="trustManagerAlgorithm" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>TrustManager Algorithm (default: pkix)</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="truststore" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>Path (or resource url) to truststore to be used for authentication</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="truststoreAuthAlias" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>Alias used to obtain truststore password</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="truststorePassword" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>Truststore Password</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="truststoreType" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>Truststore Type (default: jks)</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="url" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>url to connect to</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="useRootFolder" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>(only used when &lt;code&gt;action=create&lt;/code&gt;) if true, the document is created in the root folder of the repository. otherwise the document is created in the repository (default: true)</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="userName" type="xs:string" />
-    <xs:attribute name="username" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>username used in authentication to host</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="verifyHostname" type="xs:string">
-      <xs:annotation>
-        <xs:documentation>Ignore certificate hostname validation (default: true)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
   </xs:complexType>
@@ -12951,6 +12171,11 @@
     <xs:sequence>
       <xs:element name="Param" type="ParamType" minOccurs="0" maxOccurs="unbounded" />
     </xs:sequence>
+    <xs:attribute name="accessToken" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>AccessToken for authentication to Exchange mail server</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="action" type="xs:string">
       <xs:annotation>
         <xs:documentation>Possible values: list, info, read, readDelete, move, copy, delete, mkdir, rmdir, write, append, rename</xs:documentation>
@@ -12958,7 +12183,7 @@
     </xs:attribute>
     <xs:attribute name="authAlias" type="xs:string">
       <xs:annotation>
-        <xs:documentation>alias used to obtain credentials for authentication to exchange mail server</xs:documentation>
+        <xs:documentation>Alias used to obtain accessToken or username and password for authentication to Exchange mail server. If the alias refers to a combination of a username and a password, the deprecated Basic Authentication method is used. If the alias refers to a password without a username, the password is treated as the accessToken.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="base64" type="xs:string">
@@ -12968,12 +12193,12 @@
     </xs:attribute>
     <xs:attribute name="baseFolder" type="xs:string">
       <xs:annotation>
-        <xs:documentation>folder (subfolder of root or of inbox) to look for mails. If empty, the inbox folder is used</xs:documentation>
+        <xs:documentation>Folder (subfolder of root or of inbox) to look for mails. If empty, the inbox folder is used</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="createFolder" type="xs:string">
       <xs:annotation>
-        <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, the folder to move to is created if it does not exist (default: false)</xs:documentation>
+        <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, the folder to move or copy to is created if it does not exist (default: false)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="destination" type="xs:string">
@@ -12998,7 +12223,7 @@
     </xs:attribute>
     <xs:attribute name="mailAddress" type="xs:string">
       <xs:annotation>
-        <xs:documentation>mail address (also used for auto discovery)</xs:documentation>
+        <xs:documentation>The mail address of the mailbox connected to (also used for auto discovery)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="name" type="xs:string" use="required">
@@ -13008,12 +12233,17 @@
     </xs:attribute>
     <xs:attribute name="numberOfBackups" type="xs:string">
       <xs:annotation>
-        <xs:documentation>for action=write, and for action=append with rotateSize&gt;0: the number of backup files that is kept (default: 0)</xs:documentation>
+        <xs:documentation>for action=write, and for action=append with rotateSize&gt;0: the number of backup files that is kept. The inputFolder must point to the directory where the file resides (default: 0)</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="overwrite" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, for actions move, copy or rename, the destination file is overwritten if it already exists (default: false)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="password" type="xs:string">
       <xs:annotation>
-        <xs:documentation>password used in authentication to exchange mail server</xs:documentation>
+        <xs:documentation>Password for authentication to Exchange mail server. Ignored when accessToken is also specified</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="proxyAuthAlias" type="xs:string">
@@ -13041,29 +12271,29 @@
         <xs:documentation>proxy port</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="proxyUserName" type="xs:string">
+    <xs:attribute name="proxyUsername" type="xs:string">
       <xs:annotation>
         <xs:documentation>proxy username</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="rotateDays" type="xs:string">
       <xs:annotation>
-        <xs:documentation>for action=append: when set to a positive number, the file is rotated each day, and this number of files is kept (default: 0)</xs:documentation>
+        <xs:documentation>for action=append: when set to a positive number, the file is rotated each day, and this number of files is kept. The inputFolder must point to the directory where the file resides (default: 0)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="rotateSize" type="xs:string">
       <xs:annotation>
-        <xs:documentation>for action=append: when set to a positive number, the file is rotated when it has reached the specified size, and the number of files specified in numberOfBackups is kept (default: 0)</xs:documentation>
+        <xs:documentation>for action=append: when set to a positive number, the file is rotated when it has reached the specified size, and the number of files specified in numberOfBackups is kept. Size is specified in plain bytes, suffixes like 'K', 'M' or 'G' are not recognized. The inputFolder must point to the directory where the file resides (default: 0)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="url" type="xs:string">
       <xs:annotation>
-        <xs:documentation>(only used when mailAddress is empty) url of the service</xs:documentation>
+        <xs:documentation>Url of the Exchange server. Set to e.g. https://outlook.office365.com/EWS/Exchange.asmx to speed up start up, leave empty to use autodiscovery</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="username" type="xs:string">
       <xs:annotation>
-        <xs:documentation>username used in authentication to exchange mail server</xs:documentation>
+        <xs:documentation>Username for authentication to Exchange mail server. Ignored when accessToken is also specified</xs:documentation>
       </xs:annotation>
     </xs:attribute>
   </xs:complexType>
@@ -13071,6 +12301,11 @@
     <xs:sequence>
       <xs:element name="Param" type="ParamType" minOccurs="0" maxOccurs="unbounded" />
     </xs:sequence>
+    <xs:attribute name="accessToken" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>AccessToken for authentication to Exchange mail server</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="action" type="xs:string">
       <xs:annotation>
         <xs:documentation>Possible values: list, info, read, readDelete, move, copy, delete, mkdir, rmdir, write, append, rename</xs:documentation>
@@ -13078,7 +12313,7 @@
     </xs:attribute>
     <xs:attribute name="authAlias" type="xs:string">
       <xs:annotation>
-        <xs:documentation>alias used to obtain credentials for authentication to exchange mail server</xs:documentation>
+        <xs:documentation>Alias used to obtain accessToken or username and password for authentication to Exchange mail server. If the alias refers to a combination of a username and a password, the deprecated Basic Authentication method is used. If the alias refers to a password without a username, the password is treated as the accessToken.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="base64" type="xs:string">
@@ -13088,12 +12323,12 @@
     </xs:attribute>
     <xs:attribute name="baseFolder" type="xs:string">
       <xs:annotation>
-        <xs:documentation>folder (subfolder of root or of inbox) to look for mails. If empty, the inbox folder is used</xs:documentation>
+        <xs:documentation>Folder (subfolder of root or of inbox) to look for mails. If empty, the inbox folder is used</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="createFolder" type="xs:string">
       <xs:annotation>
-        <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, the folder to move to is created if it does not exist (default: false)</xs:documentation>
+        <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, the folder to move or copy to is created if it does not exist (default: false)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="destination" type="xs:string">
@@ -13118,7 +12353,7 @@
     </xs:attribute>
     <xs:attribute name="mailAddress" type="xs:string">
       <xs:annotation>
-        <xs:documentation>mail address (also used for auto discovery)</xs:documentation>
+        <xs:documentation>The mail address of the mailbox connected to (also used for auto discovery)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="name" type="xs:string" use="required">
@@ -13128,12 +12363,17 @@
     </xs:attribute>
     <xs:attribute name="numberOfBackups" type="xs:string">
       <xs:annotation>
-        <xs:documentation>for action=write, and for action=append with rotateSize&gt;0: the number of backup files that is kept (default: 0)</xs:documentation>
+        <xs:documentation>for action=write, and for action=append with rotateSize&gt;0: the number of backup files that is kept. The inputFolder must point to the directory where the file resides (default: 0)</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="overwrite" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, for actions move, copy or rename, the destination file is overwritten if it already exists (default: false)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="password" type="xs:string">
       <xs:annotation>
-        <xs:documentation>password used in authentication to exchange mail server</xs:documentation>
+        <xs:documentation>Password for authentication to Exchange mail server. Ignored when accessToken is also specified</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="proxyAuthAlias" type="xs:string">
@@ -13161,41 +12401,46 @@
         <xs:documentation>proxy port</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="proxyUserName" type="xs:string">
+    <xs:attribute name="proxyUsername" type="xs:string">
       <xs:annotation>
         <xs:documentation>proxy username</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="rotateDays" type="xs:string">
       <xs:annotation>
-        <xs:documentation>for action=append: when set to a positive number, the file is rotated each day, and this number of files is kept (default: 0)</xs:documentation>
+        <xs:documentation>for action=append: when set to a positive number, the file is rotated each day, and this number of files is kept. The inputFolder must point to the directory where the file resides (default: 0)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="rotateSize" type="xs:string">
       <xs:annotation>
-        <xs:documentation>for action=append: when set to a positive number, the file is rotated when it has reached the specified size, and the number of files specified in numberOfBackups is kept (default: 0)</xs:documentation>
+        <xs:documentation>for action=append: when set to a positive number, the file is rotated when it has reached the specified size, and the number of files specified in numberOfBackups is kept. Size is specified in plain bytes, suffixes like 'K', 'M' or 'G' are not recognized. The inputFolder must point to the directory where the file resides (default: 0)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="url" type="xs:string">
       <xs:annotation>
-        <xs:documentation>(only used when mailAddress is empty) url of the service</xs:documentation>
+        <xs:documentation>Url of the Exchange server. Set to e.g. https://outlook.office365.com/EWS/Exchange.asmx to speed up start up, leave empty to use autodiscovery</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="username" type="xs:string">
       <xs:annotation>
-        <xs:documentation>username used in authentication to exchange mail server</xs:documentation>
+        <xs:documentation>Username for authentication to Exchange mail server. Ignored when accessToken is also specified</xs:documentation>
       </xs:annotation>
     </xs:attribute>
   </xs:complexType>
   <xs:complexType name="ExchangeMailListenerType">
+    <xs:attribute name="accessToken" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>AccessToken for authentication to Exchange mail server</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="authAlias" type="xs:string">
       <xs:annotation>
-        <xs:documentation>alias used to obtain credentials for authentication to exchange mail server</xs:documentation>
+        <xs:documentation>Alias used to obtain accessToken or username and password for authentication to Exchange mail server. If the alias refers to a combination of a username and a password, the deprecated Basic Authentication method is used. If the alias refers to a password without a username, the password is treated as the accessToken.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="baseFolder" type="xs:string">
       <xs:annotation>
-        <xs:documentation>folder (subfolder of root or of inbox) to look for mails. If empty, the inbox folder is used</xs:documentation>
+        <xs:documentation>Folder (subfolder of root or of inbox) to look for mails. If empty, the inbox folder is used</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="createFolders" type="xs:string">
@@ -13270,7 +12515,7 @@
     </xs:attribute>
     <xs:attribute name="password" type="xs:string">
       <xs:annotation>
-        <xs:documentation>password for authentication to exchange mail server</xs:documentation>
+        <xs:documentation>Password for authentication to Exchange mail server. Ignored when accessToken is also specified</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="processedFolder" type="xs:string">
@@ -13303,7 +12548,7 @@
         <xs:documentation>proxy port</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="proxyUserName" type="xs:string">
+    <xs:attribute name="proxyUsername" type="xs:string">
       <xs:annotation>
         <xs:documentation>proxy username</xs:documentation>
       </xs:annotation>
@@ -13316,12 +12561,12 @@
     <xs:attribute name="storeEmailAsStreamInSessionKey" type="xs:string" />
     <xs:attribute name="url" type="xs:string">
       <xs:annotation>
-        <xs:documentation>url of the Exchange server. Set to e.g. https://outlook.office365.com/EWS/Exchange.asmx to speed up start up, leave empty to use autodiscovery</xs:documentation>
+        <xs:documentation>Url of the Exchange server. Set to e.g. https://outlook.office365.com/EWS/Exchange.asmx to speed up start up, leave empty to use autodiscovery</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="userName" type="xs:string">
+    <xs:attribute name="username" type="xs:string">
       <xs:annotation>
-        <xs:documentation>username for authentication to exchange mail server</xs:documentation>
+        <xs:documentation>Username for authentication to Exchange mail server. Ignored when accessToken is also specified</xs:documentation>
       </xs:annotation>
     </xs:attribute>
   </xs:complexType>
@@ -13412,6 +12657,11 @@
         <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, a test is performed to find out if a temporary file can be created and deleted in the specified directory (only used if directory is set and combined with the action write, write_append or create) (default: true)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+    <xs:attribute name="testExists" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>test if the specified directory exists at configure() (default: true)</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="writeLineSeparator" type="xs:string">
       <xs:annotation>
         <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, a line separator is written after the content is written (default: false)</xs:documentation>
@@ -13447,8 +12697,6 @@
         <xs:element name="Afm2EdiFactSender" type="Afm2EdiFactSenderType" minOccurs="0" />
         <xs:element name="AmazonS3Sender" type="AmazonS3SenderType" minOccurs="0" />
         <xs:element name="BisJmsSender" type="BisJmsSenderType" minOccurs="0" />
-        <xs:element name="CmisHttpSender" type="CmisHttpSenderType" minOccurs="0" />
-        <xs:element name="CmisSender" type="CmisSenderType" minOccurs="0" />
         <xs:element name="CommandSender" type="CommandSenderType" minOccurs="0" />
         <xs:element name="DelaySender" type="DelaySenderType" minOccurs="0" />
         <xs:element name="DirectQuerySender" type="DirectQuerySenderType" minOccurs="0" />
@@ -14099,6 +13347,11 @@
         <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, a test is performed to find out if a temporary file can be created and deleted in the specified directory (only used if directory is set and combined with the action write, write_append or create) (default: true)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+    <xs:attribute name="testExists" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>test if the specified directory exists at configure() (default: true)</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="transactionAttribute" type="xs:string">
       <xs:annotation>
         <xs:documentation>Defines transaction and isolation behaviour.For developers: it is equalto &lt;a href="http://java.sun.com/j2ee/sdk_1.2.1/techdocs/guides/ejb/html/Transaction2.html#10494"&gt;EJB transaction attribute&lt;/a&gt;.Possible values are:  &lt;table border="1"&gt;    &lt;tr&gt;&lt;th&gt;transactionAttribute&lt;/th&gt;&lt;th&gt;callers Transaction&lt;/th&gt;&lt;th&gt;Pipeline excecuted in Transaction&lt;/th&gt;&lt;/tr&gt;    &lt;tr&gt;&lt;td colspan="1" rowspan="2"&gt;Required&lt;/td&gt;    &lt;td&gt;none&lt;/td&gt;&lt;td&gt;T2&lt;/td&gt;&lt;/tr&gt;											      &lt;tr&gt;&lt;td&gt;T1&lt;/td&gt;  &lt;td&gt;T1&lt;/td&gt;&lt;/tr&gt;    &lt;tr&gt;&lt;td colspan="1" rowspan="2"&gt;RequiresNew&lt;/td&gt; &lt;td&gt;none&lt;/td&gt;&lt;td&gt;T2&lt;/td&gt;&lt;/tr&gt;											      &lt;tr&gt;&lt;td&gt;T1&lt;/td&gt;  &lt;td&gt;T2&lt;/td&gt;&lt;/tr&gt;    &lt;tr&gt;&lt;td colspan="1" rowspan="2"&gt;Mandatory&lt;/td&gt;   &lt;td&gt;none&lt;/td&gt;&lt;td&gt;error&lt;/td&gt;&lt;/tr&gt;											      &lt;tr&gt;&lt;td&gt;T1&lt;/td&gt;  &lt;td&gt;T1&lt;/td&gt;&lt;/tr&gt;    &lt;tr&gt;&lt;td colspan="1" rowspan="2"&gt;NotSupported&lt;/td&gt;&lt;td&gt;none&lt;/td&gt;&lt;td&gt;none&lt;/td&gt;&lt;/tr&gt;											      &lt;tr&gt;&lt;td&gt;T1&lt;/td&gt;  &lt;td&gt;none&lt;/td&gt;&lt;/tr&gt;    &lt;tr&gt;&lt;td colspan="1" rowspan="2"&gt;Supports&lt;/td&gt;    &lt;td&gt;none&lt;/td&gt;&lt;td&gt;none&lt;/td&gt;&lt;/tr&gt; 										      &lt;tr&gt;&lt;td&gt;T1&lt;/td&gt;  &lt;td&gt;T1&lt;/td&gt;&lt;/tr&gt;    &lt;tr&gt;&lt;td colspan="1" rowspan="2"&gt;Never&lt;/td&gt;       &lt;td&gt;none&lt;/td&gt;&lt;td&gt;none&lt;/td&gt;&lt;/tr&gt;											      &lt;tr&gt;&lt;td&gt;T1&lt;/td&gt;  &lt;td&gt;error&lt;/td&gt;&lt;/tr&gt;  &lt;/table&gt; (default: Supports)</xs:documentation>
@@ -14223,6 +13476,11 @@
         <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, a test is performed to find out if a temporary file can be created and deleted in the specified directory (only used if directory is set and combined with the action write, write_append or create) (default: true)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+    <xs:attribute name="testExists" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>test if the specified directory exists at configure() (default: true)</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="writeLineSeparator" type="xs:string">
       <xs:annotation>
         <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, a line separator is written after the content is written (default: false)</xs:documentation>
@@ -14250,7 +13508,7 @@
     </xs:attribute>
     <xs:attribute name="createFolder" type="xs:string">
       <xs:annotation>
-        <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, the folder to move to is created if it does not exist (default: false)</xs:documentation>
+        <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, the folder to move or copy to is created if it does not exist (default: false)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="destination" type="xs:string">
@@ -14275,17 +13533,22 @@
     </xs:attribute>
     <xs:attribute name="numberOfBackups" type="xs:string">
       <xs:annotation>
-        <xs:documentation>for action=write, and for action=append with rotateSize&gt;0: the number of backup files that is kept (default: 0)</xs:documentation>
+        <xs:documentation>for action=write, and for action=append with rotateSize&gt;0: the number of backup files that is kept. The inputFolder must point to the directory where the file resides (default: 0)</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="overwrite" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, for actions move, copy or rename, the destination file is overwritten if it already exists (default: false)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="rotateDays" type="xs:string">
       <xs:annotation>
-        <xs:documentation>for action=append: when set to a positive number, the file is rotated each day, and this number of files is kept (default: 0)</xs:documentation>
+        <xs:documentation>for action=append: when set to a positive number, the file is rotated each day, and this number of files is kept. The inputFolder must point to the directory where the file resides (default: 0)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="rotateSize" type="xs:string">
       <xs:annotation>
-        <xs:documentation>for action=append: when set to a positive number, the file is rotated when it has reached the specified size, and the number of files specified in numberOfBackups is kept (default: 0)</xs:documentation>
+        <xs:documentation>for action=append: when set to a positive number, the file is rotated when it has reached the specified size, and the number of files specified in numberOfBackups is kept. Size is specified in plain bytes, suffixes like 'K', 'M' or 'G' are not recognized. The inputFolder must point to the directory where the file resides (default: 0)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
   </xs:complexType>
@@ -14317,7 +13580,7 @@
     </xs:attribute>
     <xs:attribute name="createFolder" type="xs:string">
       <xs:annotation>
-        <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, the folder to move to is created if it does not exist (default: false)</xs:documentation>
+        <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, the folder to move or copy to is created if it does not exist (default: false)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="destination" type="xs:string">
@@ -14408,7 +13671,12 @@
     </xs:attribute>
     <xs:attribute name="numberOfBackups" type="xs:string">
       <xs:annotation>
-        <xs:documentation>for action=write, and for action=append with rotateSize&gt;0: the number of backup files that is kept (default: 0)</xs:documentation>
+        <xs:documentation>for action=write, and for action=append with rotateSize&gt;0: the number of backup files that is kept. The inputFolder must point to the directory where the file resides (default: 0)</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="overwrite" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, for actions move, copy or rename, the destination file is overwritten if it already exists (default: false)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="preserveInput" type="xs:string">
@@ -14424,12 +13692,12 @@
     </xs:attribute>
     <xs:attribute name="rotateDays" type="xs:string">
       <xs:annotation>
-        <xs:documentation>for action=append: when set to a positive number, the file is rotated each day, and this number of files is kept (default: 0)</xs:documentation>
+        <xs:documentation>for action=append: when set to a positive number, the file is rotated each day, and this number of files is kept. The inputFolder must point to the directory where the file resides (default: 0)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="rotateSize" type="xs:string">
       <xs:annotation>
-        <xs:documentation>for action=append: when set to a positive number, the file is rotated when it has reached the specified size, and the number of files specified in numberOfBackups is kept (default: 0)</xs:documentation>
+        <xs:documentation>for action=append: when set to a positive number, the file is rotated when it has reached the specified size, and the number of files specified in numberOfBackups is kept. Size is specified in plain bytes, suffixes like 'K', 'M' or 'G' are not recognized. The inputFolder must point to the directory where the file resides (default: 0)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="secLogSessionKeys" type="xs:string">
@@ -14485,7 +13753,7 @@
     </xs:attribute>
     <xs:attribute name="createFolder" type="xs:string">
       <xs:annotation>
-        <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, the folder to move to is created if it does not exist (default: false)</xs:documentation>
+        <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, the folder to move or copy to is created if it does not exist (default: false)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="destination" type="xs:string">
@@ -14510,17 +13778,22 @@
     </xs:attribute>
     <xs:attribute name="numberOfBackups" type="xs:string">
       <xs:annotation>
-        <xs:documentation>for action=write, and for action=append with rotateSize&gt;0: the number of backup files that is kept (default: 0)</xs:documentation>
+        <xs:documentation>for action=write, and for action=append with rotateSize&gt;0: the number of backup files that is kept. The inputFolder must point to the directory where the file resides (default: 0)</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="overwrite" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, for actions move, copy or rename, the destination file is overwritten if it already exists (default: false)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="rotateDays" type="xs:string">
       <xs:annotation>
-        <xs:documentation>for action=append: when set to a positive number, the file is rotated each day, and this number of files is kept (default: 0)</xs:documentation>
+        <xs:documentation>for action=append: when set to a positive number, the file is rotated each day, and this number of files is kept. The inputFolder must point to the directory where the file resides (default: 0)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="rotateSize" type="xs:string">
       <xs:annotation>
-        <xs:documentation>for action=append: when set to a positive number, the file is rotated when it has reached the specified size, and the number of files specified in numberOfBackups is kept (default: 0)</xs:documentation>
+        <xs:documentation>for action=append: when set to a positive number, the file is rotated when it has reached the specified size, and the number of files specified in numberOfBackups is kept. Size is specified in plain bytes, suffixes like 'K', 'M' or 'G' are not recognized. The inputFolder must point to the directory where the file resides (default: 0)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
   </xs:complexType>
@@ -14540,7 +13813,7 @@
     </xs:attribute>
     <xs:attribute name="createFolder" type="xs:string">
       <xs:annotation>
-        <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, the folder to move to is created if it does not exist (default: false)</xs:documentation>
+        <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, the folder to move or copy to is created if it does not exist (default: false)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="destination" type="xs:string">
@@ -14565,17 +13838,22 @@
     </xs:attribute>
     <xs:attribute name="numberOfBackups" type="xs:string">
       <xs:annotation>
-        <xs:documentation>for action=write, and for action=append with rotateSize&gt;0: the number of backup files that is kept (default: 0)</xs:documentation>
+        <xs:documentation>for action=write, and for action=append with rotateSize&gt;0: the number of backup files that is kept. The inputFolder must point to the directory where the file resides (default: 0)</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="overwrite" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, for actions move, copy or rename, the destination file is overwritten if it already exists (default: false)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="rotateDays" type="xs:string">
       <xs:annotation>
-        <xs:documentation>for action=append: when set to a positive number, the file is rotated each day, and this number of files is kept (default: 0)</xs:documentation>
+        <xs:documentation>for action=append: when set to a positive number, the file is rotated each day, and this number of files is kept. The inputFolder must point to the directory where the file resides (default: 0)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="rotateSize" type="xs:string">
       <xs:annotation>
-        <xs:documentation>for action=append: when set to a positive number, the file is rotated when it has reached the specified size, and the number of files specified in numberOfBackups is kept (default: 0)</xs:documentation>
+        <xs:documentation>for action=append: when set to a positive number, the file is rotated when it has reached the specified size, and the number of files specified in numberOfBackups is kept. Size is specified in plain bytes, suffixes like 'K', 'M' or 'G' are not recognized. The inputFolder must point to the directory where the file resides (default: 0)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
   </xs:complexType>
@@ -15412,8 +14690,6 @@
         <xs:element name="Afm2EdiFactSender" type="Afm2EdiFactSenderType" minOccurs="0" />
         <xs:element name="AmazonS3Sender" type="AmazonS3SenderType" minOccurs="0" />
         <xs:element name="BisJmsSender" type="BisJmsSenderType" minOccurs="0" />
-        <xs:element name="CmisHttpSender" type="CmisHttpSenderType" minOccurs="0" />
-        <xs:element name="CmisSender" type="CmisSenderType" minOccurs="0" />
         <xs:element name="CommandSender" type="CommandSenderType" minOccurs="0" />
         <xs:element name="DelaySender" type="DelaySenderType" minOccurs="0" />
         <xs:element name="DirectQuerySender" type="DirectQuerySenderType" minOccurs="0" />
@@ -15869,8 +15145,6 @@
         <xs:element name="Afm2EdiFactSender" type="Afm2EdiFactSenderType" minOccurs="0" />
         <xs:element name="AmazonS3Sender" type="AmazonS3SenderType" minOccurs="0" />
         <xs:element name="BisJmsSender" type="BisJmsSenderType" minOccurs="0" />
-        <xs:element name="CmisHttpSender" type="CmisHttpSenderType" minOccurs="0" />
-        <xs:element name="CmisSender" type="CmisSenderType" minOccurs="0" />
         <xs:element name="CommandSender" type="CommandSenderType" minOccurs="0" />
         <xs:element name="DelaySender" type="DelaySenderType" minOccurs="0" />
         <xs:element name="DirectQuerySender" type="DirectQuerySenderType" minOccurs="0" />
@@ -16967,7 +16241,7 @@
     </xs:attribute>
     <xs:attribute name="createFolder" type="xs:string">
       <xs:annotation>
-        <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, the folder to move to is created if it does not exist (default: false)</xs:documentation>
+        <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, the folder to move or copy to is created if it does not exist (default: false)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="destination" type="xs:string">
@@ -17032,7 +16306,12 @@
     </xs:attribute>
     <xs:attribute name="numberOfBackups" type="xs:string">
       <xs:annotation>
-        <xs:documentation>for action=write, and for action=append with rotateSize&gt;0: the number of backup files that is kept (default: 0)</xs:documentation>
+        <xs:documentation>for action=write, and for action=append with rotateSize&gt;0: the number of backup files that is kept. The inputFolder must point to the directory where the file resides (default: 0)</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="overwrite" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, for actions move, copy or rename, the destination file is overwritten if it already exists (default: false)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="passive" type="xs:string">
@@ -17117,12 +16396,12 @@
     </xs:attribute>
     <xs:attribute name="rotateDays" type="xs:string">
       <xs:annotation>
-        <xs:documentation>for action=append: when set to a positive number, the file is rotated each day, and this number of files is kept (default: 0)</xs:documentation>
+        <xs:documentation>for action=append: when set to a positive number, the file is rotated each day, and this number of files is kept. The inputFolder must point to the directory where the file resides (default: 0)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="rotateSize" type="xs:string">
       <xs:annotation>
-        <xs:documentation>for action=append: when set to a positive number, the file is rotated when it has reached the specified size, and the number of files specified in numberOfBackups is kept (default: 0)</xs:documentation>
+        <xs:documentation>for action=append: when set to a positive number, the file is rotated when it has reached the specified size, and the number of files specified in numberOfBackups is kept. Size is specified in plain bytes, suffixes like 'K', 'M' or 'G' are not recognized. The inputFolder must point to the directory where the file resides (default: 0)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="trustManagerAlgorithm" type="xs:string">
@@ -17212,7 +16491,7 @@
     </xs:attribute>
     <xs:attribute name="createFolder" type="xs:string">
       <xs:annotation>
-        <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, the folder to move to is created if it does not exist (default: false)</xs:documentation>
+        <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, the folder to move or copy to is created if it does not exist (default: false)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="destination" type="xs:string">
@@ -17277,7 +16556,12 @@
     </xs:attribute>
     <xs:attribute name="numberOfBackups" type="xs:string">
       <xs:annotation>
-        <xs:documentation>for action=write, and for action=append with rotateSize&gt;0: the number of backup files that is kept (default: 0)</xs:documentation>
+        <xs:documentation>for action=write, and for action=append with rotateSize&gt;0: the number of backup files that is kept. The inputFolder must point to the directory where the file resides (default: 0)</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="overwrite" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, for actions move, copy or rename, the destination file is overwritten if it already exists (default: false)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="passive" type="xs:string">
@@ -17362,12 +16646,12 @@
     </xs:attribute>
     <xs:attribute name="rotateDays" type="xs:string">
       <xs:annotation>
-        <xs:documentation>for action=append: when set to a positive number, the file is rotated each day, and this number of files is kept (default: 0)</xs:documentation>
+        <xs:documentation>for action=append: when set to a positive number, the file is rotated each day, and this number of files is kept. The inputFolder must point to the directory where the file resides (default: 0)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="rotateSize" type="xs:string">
       <xs:annotation>
-        <xs:documentation>for action=append: when set to a positive number, the file is rotated when it has reached the specified size, and the number of files specified in numberOfBackups is kept (default: 0)</xs:documentation>
+        <xs:documentation>for action=append: when set to a positive number, the file is rotated when it has reached the specified size, and the number of files specified in numberOfBackups is kept. Size is specified in plain bytes, suffixes like 'K', 'M' or 'G' are not recognized. The inputFolder must point to the directory where the file resides (default: 0)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="trustManagerAlgorithm" type="xs:string">
@@ -17843,6 +17127,11 @@
     <xs:attribute name="cmhVersion" type="xs:string">
       <xs:annotation>
         <xs:documentation>(only used when &lt;code&gt;mode=reg&lt;/code&gt;) Common Message Header version (1 or 2) (default: 1 when &lt;code&gt;mode=reg&lt;/code&gt;, 0 otherwise)</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="createFolder" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, the folder corresponding fxf.dir property will be created in case it does not exist (default: false)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="direction" type="xs:string">
@@ -18322,6 +17611,11 @@
         <xs:documentation>(only used when &lt;code&gt;mode=reg&lt;/code&gt;) Common Message Header version (1 or 2) (default: 1 when &lt;code&gt;mode=reg&lt;/code&gt;, 0 otherwise)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+    <xs:attribute name="createFolder" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, the folder corresponding fxf.dir property will be created in case it does not exist (default: false)</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="direction" type="xs:string">
       <xs:annotation>
         <xs:documentation>Either &lt;code&gt;wrap&lt;/code&gt; or &lt;code&gt;unwrap&lt;/code&gt; (default: wrap)</xs:documentation>
@@ -18609,6 +17903,11 @@
     <xs:attribute name="cmhVersion" type="xs:string">
       <xs:annotation>
         <xs:documentation>(only used when &lt;code&gt;mode=reg&lt;/code&gt;) Common Message Header version (1 or 2) (default: 1 when &lt;code&gt;mode=reg&lt;/code&gt;, 0 otherwise)</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="createFolder" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, the folder corresponding fxf.dir property will be created in case it does not exist (default: false)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="direction" type="xs:string">
@@ -20682,7 +19981,7 @@
         <xs:documentation>proxy realm (default:  )</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="proxyUserName" type="xs:string">
+    <xs:attribute name="proxyUsername" type="xs:string">
       <xs:annotation>
         <xs:documentation>proxy username (default:  )</xs:documentation>
       </xs:annotation>
@@ -20968,7 +20267,7 @@
         <xs:documentation>proxy realm (default:  )</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="proxyUserName" type="xs:string">
+    <xs:attribute name="proxyUsername" type="xs:string">
       <xs:annotation>
         <xs:documentation>proxy username (default:  )</xs:documentation>
       </xs:annotation>
@@ -21517,7 +20816,7 @@
     </xs:sequence>
     <xs:attribute name="checkDependency" type="xs:string">
       <xs:annotation>
-        <xs:documentation>when &lt;code&gt;true&lt;/code&gt;, the sender waits upon open until the called {@link nl.nn.adapterframework.receivers.javalistener javalistener} is opened (default: true)</xs:documentation>
+        <xs:documentation>when &lt;code&gt;true&lt;/code&gt;, the sender waits upon open until the called {@link nl.nn.adapterframework.receivers.JavaListener JavaListener} is opened (default: true)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="dependencyTimeOut" type="xs:string">
@@ -21532,12 +20831,12 @@
     </xs:attribute>
     <xs:attribute name="javaListener" type="xs:string">
       <xs:annotation>
-        <xs:documentation>name of the {@link nl.nn.adapterframework.receivers.javalistener javalistener} that should be called (will be ignored when javalistenersessionkey is set)</xs:documentation>
+        <xs:documentation>name of the {@link nl.nn.adapterframework.receivers.JavaListener JavaListener} that should be called (will be ignored when javaListenerSessionKey is set)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="javaListenerSessionKey" type="xs:string">
       <xs:annotation>
-        <xs:documentation>name of the sessionkey which holds the name of the {@link nl.nn.adapterframework.receivers.javalistener javalistener} that should be called</xs:documentation>
+        <xs:documentation>name of the sessionkey which holds the name of the {@link nl.nn.adapterframework.receivers.JavaListener JavaListener} that should be called</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="name" type="xs:string" use="required">
@@ -21552,7 +20851,7 @@
     </xs:attribute>
     <xs:attribute name="serviceName" type="xs:string">
       <xs:annotation>
-        <xs:documentation>name of the {@link nl.nn.adapterframework.http.webservicelistener webservicelistener} that should be called</xs:documentation>
+        <xs:documentation>name of the {@link nl.nn.adapterframework.http.WebServiceListener WebServiceListener} that should be called</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="synchronous" type="xs:string">
@@ -21562,7 +20861,7 @@
     </xs:attribute>
     <xs:attribute name="throwJavaListenerNotFoundException" type="xs:string">
       <xs:annotation>
-        <xs:documentation>when set &lt;code&gt;false&lt;/code&gt;, the xml-string "&amp;lt;error&amp;gt;could not find javalistener [...]&amp;lt;/error&amp;gt;" is returned instead of throwing a senderexception (default: true)</xs:documentation>
+        <xs:documentation>when set &lt;code&gt;false&lt;/code&gt;, the xml-string "&amp;lt;error&amp;gt;could not find JavaListener [...]&amp;lt;/error&amp;gt;" is returned instead of throwing a senderexception (default: true)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
   </xs:complexType>
@@ -21572,7 +20871,7 @@
     </xs:sequence>
     <xs:attribute name="checkDependency" type="xs:string">
       <xs:annotation>
-        <xs:documentation>when &lt;code&gt;true&lt;/code&gt;, the sender waits upon open until the called {@link nl.nn.adapterframework.receivers.javalistener javalistener} is opened (default: true)</xs:documentation>
+        <xs:documentation>when &lt;code&gt;true&lt;/code&gt;, the sender waits upon open until the called {@link nl.nn.adapterframework.receivers.JavaListener JavaListener} is opened (default: true)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="dependencyTimeOut" type="xs:string">
@@ -21587,12 +20886,12 @@
     </xs:attribute>
     <xs:attribute name="javaListener" type="xs:string">
       <xs:annotation>
-        <xs:documentation>name of the {@link nl.nn.adapterframework.receivers.javalistener javalistener} that should be called (will be ignored when javalistenersessionkey is set)</xs:documentation>
+        <xs:documentation>name of the {@link nl.nn.adapterframework.receivers.JavaListener JavaListener} that should be called (will be ignored when javaListenerSessionKey is set)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="javaListenerSessionKey" type="xs:string">
       <xs:annotation>
-        <xs:documentation>name of the sessionkey which holds the name of the {@link nl.nn.adapterframework.receivers.javalistener javalistener} that should be called</xs:documentation>
+        <xs:documentation>name of the sessionkey which holds the name of the {@link nl.nn.adapterframework.receivers.JavaListener JavaListener} that should be called</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="name" type="xs:string" use="required">
@@ -21607,7 +20906,7 @@
     </xs:attribute>
     <xs:attribute name="serviceName" type="xs:string">
       <xs:annotation>
-        <xs:documentation>name of the {@link nl.nn.adapterframework.http.webservicelistener webservicelistener} that should be called</xs:documentation>
+        <xs:documentation>name of the {@link nl.nn.adapterframework.http.WebServiceListener WebServiceListener} that should be called</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="synchronous" type="xs:string">
@@ -21617,7 +20916,7 @@
     </xs:attribute>
     <xs:attribute name="throwJavaListenerNotFoundException" type="xs:string">
       <xs:annotation>
-        <xs:documentation>when set &lt;code&gt;false&lt;/code&gt;, the xml-string "&amp;lt;error&amp;gt;could not find javalistener [...]&amp;lt;/error&amp;gt;" is returned instead of throwing a senderexception (default: true)</xs:documentation>
+        <xs:documentation>when set &lt;code&gt;false&lt;/code&gt;, the xml-string "&amp;lt;error&amp;gt;could not find JavaListener [...]&amp;lt;/error&amp;gt;" is returned instead of throwing a senderexception (default: true)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
   </xs:complexType>
@@ -21906,14 +21205,6 @@
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="writeToSecLog" type="xs:string" />
-  </xs:complexType>
-  <xs:complexType name="IfsaProviderListenerType">
-    <xs:attribute name="applicationId" type="xs:string" />
-    <xs:attribute name="messageProtocol" type="xs:string" />
-    <xs:attribute name="name" type="xs:string" use="required" />
-    <xs:attribute name="polishedServiceId" type="xs:string" />
-    <xs:attribute name="serviceId" type="xs:string" />
-    <xs:attribute name="timeOut" type="xs:string" />
   </xs:complexType>
   <xs:complexType name="IfsaSimulatorJmsErrorSenderType">
     <xs:sequence>
@@ -22907,8 +22198,6 @@
         <xs:element name="Afm2EdiFactSender" type="Afm2EdiFactSenderType" minOccurs="0" />
         <xs:element name="AmazonS3Sender" type="AmazonS3SenderType" minOccurs="0" />
         <xs:element name="BisJmsSender" type="BisJmsSenderType" minOccurs="0" />
-        <xs:element name="CmisHttpSender" type="CmisHttpSenderType" minOccurs="0" />
-        <xs:element name="CmisSender" type="CmisSenderType" minOccurs="0" />
         <xs:element name="CommandSender" type="CommandSenderType" minOccurs="0" />
         <xs:element name="DelaySender" type="DelaySenderType" minOccurs="0" />
         <xs:element name="DirectQuerySender" type="DirectQuerySenderType" minOccurs="0" />
@@ -23016,8 +22305,6 @@
         <xs:element name="Afm2EdiFactSender" type="Afm2EdiFactSenderType" minOccurs="0" />
         <xs:element name="AmazonS3Sender" type="AmazonS3SenderType" minOccurs="0" />
         <xs:element name="BisJmsSender" type="BisJmsSenderType" minOccurs="0" />
-        <xs:element name="CmisHttpSender" type="CmisHttpSenderType" minOccurs="0" />
-        <xs:element name="CmisSender" type="CmisSenderType" minOccurs="0" />
         <xs:element name="CommandSender" type="CommandSenderType" minOccurs="0" />
         <xs:element name="DelaySender" type="DelaySenderType" minOccurs="0" />
         <xs:element name="DirectQuerySender" type="DirectQuerySenderType" minOccurs="0" />
@@ -23341,20 +22628,19 @@
     </xs:attribute>
     <xs:attribute name="blobCharset" type="xs:string">
       <xs:annotation>
-        <xs:documentation>charset used to read blobs (default: utf-8)</xs:documentation>
+        <xs:documentation>Charset used to read blobs (default: UTF-8)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="blobSmartGet" type="xs:string">
       <xs:annotation>
-        <xs:documentation>controls automatically whether blobdata is stored compressed and/or serialized in the database (default: false)</xs:documentation>
+        <xs:documentation>Controls automatically whether blobdata is stored compressed and/or serialized in the database (default: false)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="blobsCompressed" type="xs:string">
       <xs:annotation>
-        <xs:documentation>controls whether blobdata is considered stored compressed in the database (default: true)</xs:documentation>
+        <xs:documentation>Controls whether blobdata is considered stored compressed in the database (default: true)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="commitLocalTransactionQuery" type="xs:string" />
     <xs:attribute name="connectionsArePooled" type="xs:string" />
     <xs:attribute name="credentials" type="xs:string">
       <xs:annotation>
@@ -23380,7 +22666,7 @@
     <xs:attribute name="jndiProperties" type="xs:string" />
     <xs:attribute name="messageFieldType" type="xs:string">
       <xs:annotation>
-        <xs:documentation>type of the field containing the message data: either string, clob or blob (default: &lt;i&gt;string&lt;/i&gt;)</xs:documentation>
+        <xs:documentation>Type of the field containing the message data: either String, clob or blob (default: &lt;i&gt;String&lt;/i&gt;)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="name" type="xs:string" use="required">
@@ -23418,7 +22704,6 @@
         <xs:documentation>maps to the field context.security_protocol</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="startLocalTransactionQuery" type="xs:string" />
     <xs:attribute name="trace" type="xs:string" />
     <xs:attribute name="transacted" type="xs:string" />
     <xs:attribute name="urlPkgPrefixes" type="xs:string">
@@ -23655,20 +22940,19 @@
     </xs:attribute>
     <xs:attribute name="blobCharset" type="xs:string">
       <xs:annotation>
-        <xs:documentation>charset used to read blobs (default: utf-8)</xs:documentation>
+        <xs:documentation>Charset used to read blobs (default: UTF-8)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="blobSmartGet" type="xs:string">
       <xs:annotation>
-        <xs:documentation>controls automatically whether blobdata is stored compressed and/or serialized in the database (default: false)</xs:documentation>
+        <xs:documentation>Controls automatically whether blobdata is stored compressed and/or serialized in the database (default: false)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="blobsCompressed" type="xs:string">
       <xs:annotation>
-        <xs:documentation>controls whether blobdata is considered stored compressed in the database (default: true)</xs:documentation>
+        <xs:documentation>Controls whether blobdata is considered stored compressed in the database (default: true)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="commitLocalTransactionQuery" type="xs:string" />
     <xs:attribute name="connectionsArePooled" type="xs:string" />
     <xs:attribute name="credentials" type="xs:string">
       <xs:annotation>
@@ -23694,17 +22978,17 @@
     <xs:attribute name="jndiProperties" type="xs:string" />
     <xs:attribute name="keyField" type="xs:string">
       <xs:annotation>
-        <xs:documentation>primary key field of the table, used to identify messages</xs:documentation>
+        <xs:documentation>Primary key field of the table, used to identify messages</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="messageField" type="xs:string">
       <xs:annotation>
-        <xs:documentation>(optional) field containing the message data (default: &lt;i&gt;same as keyfield&lt;/i&gt;)</xs:documentation>
+        <xs:documentation>(Optional) field containing the message data (default: &lt;i&gt;same as keyField&lt;/i&gt;)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="messageFieldType" type="xs:string">
       <xs:annotation>
-        <xs:documentation>type of the field containing the message data: either string, clob or blob (default: &lt;i&gt;string&lt;/i&gt;)</xs:documentation>
+        <xs:documentation>Type of the field containing the message data: either String, clob or blob (default: &lt;i&gt;String&lt;/i&gt;)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="name" type="xs:string" use="required">
@@ -23737,6 +23021,11 @@
         <xs:documentation>(default:  )</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+    <xs:attribute name="revertInProcessStatusQuery" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>SQL statement to set the status of a row to 'available'. Must contain one parameter, that is set to the value of the key. Only use in rollbacks, when updateStatusToInProcessQuery is specified</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="securityProtocol" type="xs:string">
       <xs:annotation>
         <xs:documentation>maps to the field context.security_protocol</xs:documentation>
@@ -23744,20 +23033,24 @@
     </xs:attribute>
     <xs:attribute name="selectQuery" type="xs:string">
       <xs:annotation>
-        <xs:documentation>query that returns a row to be processed. must contain a key field and optionally a message field</xs:documentation>
+        <xs:documentation>Query that returns a row to be processed. Must contain a key field and optionally a message field</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="startLocalTransactionQuery" type="xs:string" />
     <xs:attribute name="trace" type="xs:string" />
     <xs:attribute name="transacted" type="xs:string" />
     <xs:attribute name="updateStatusToErrorQuery" type="xs:string">
       <xs:annotation>
-        <xs:documentation>sql statement to the status of a row to 'error'. must contain one parameter, that is set to the value of the key (default: same as &lt;code&gt;updatestatustoprocessedquery&lt;/code&gt;)</xs:documentation>
+        <xs:documentation>SQL statement to set the status of a row to 'error'. Must contain one parameter, that is set to the value of the key (default: same as &lt;code&gt;updateStatusToProcessedQuery&lt;/code&gt;)</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="updateStatusToInProcessQuery" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>SQL statement to set the status of a row to 'in process'. Must contain one parameter, that is set to the value of the key. Can be left emtpy if database has SKIP LOCKED functionality</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="updateStatusToProcessedQuery" type="xs:string">
       <xs:annotation>
-        <xs:documentation>sql statement to the status of a row to 'processed'. must contain one parameter, that is set to the value of the key</xs:documentation>
+        <xs:documentation>SQL statement to set the status of a row to 'processed'. Must contain one parameter, that is set to the value of the key</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="urlPkgPrefixes" type="xs:string">
@@ -23784,20 +23077,19 @@
     </xs:attribute>
     <xs:attribute name="blobCharset" type="xs:string">
       <xs:annotation>
-        <xs:documentation>charset used to read blobs (default: utf-8)</xs:documentation>
+        <xs:documentation>Charset used to read blobs (default: UTF-8)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="blobSmartGet" type="xs:string">
       <xs:annotation>
-        <xs:documentation>controls automatically whether blobdata is stored compressed and/or serialized in the database (default: false)</xs:documentation>
+        <xs:documentation>Controls automatically whether blobdata is stored compressed and/or serialized in the database (default: false)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="blobsCompressed" type="xs:string">
       <xs:annotation>
-        <xs:documentation>controls whether blobdata is considered stored compressed in the database (default: true)</xs:documentation>
+        <xs:documentation>Controls whether blobdata is considered stored compressed in the database (default: true)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="commitLocalTransactionQuery" type="xs:string" />
     <xs:attribute name="connectionsArePooled" type="xs:string" />
     <xs:attribute name="credentials" type="xs:string">
       <xs:annotation>
@@ -23823,17 +23115,17 @@
     <xs:attribute name="jndiProperties" type="xs:string" />
     <xs:attribute name="keyField" type="xs:string">
       <xs:annotation>
-        <xs:documentation>primary key field of the table, used to identify messages</xs:documentation>
+        <xs:documentation>Primary key field of the table, used to identify messages</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="messageField" type="xs:string">
       <xs:annotation>
-        <xs:documentation>(optional) field containing the message data (default: &lt;i&gt;same as keyfield&lt;/i&gt;)</xs:documentation>
+        <xs:documentation>(Optional) field containing the message data (default: &lt;i&gt;same as keyField&lt;/i&gt;)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="messageFieldType" type="xs:string">
       <xs:annotation>
-        <xs:documentation>type of the field containing the message data: either string, clob or blob (default: &lt;i&gt;string&lt;/i&gt;)</xs:documentation>
+        <xs:documentation>Type of the field containing the message data: either String, clob or blob (default: &lt;i&gt;String&lt;/i&gt;)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="name" type="xs:string" use="required">
@@ -23881,7 +23173,6 @@
         <xs:documentation>Additional condition for a row to belong to this TableListener</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="startLocalTransactionQuery" type="xs:string" />
     <xs:attribute name="statusField" type="xs:string">
       <xs:annotation>
         <xs:documentation>Field containing the status of the message</xs:documentation>
@@ -23895,6 +23186,11 @@
     <xs:attribute name="statusValueError" type="xs:string">
       <xs:annotation>
         <xs:documentation>Value of statusField indicating the processing of the row resulted in an error</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="statusValueInProcess" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Value of status field indicating is being processed. Can be left emtpy if database has SKIP LOCKED functionality</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="statusValueProcessed" type="xs:string">
@@ -27572,7 +26868,7 @@
     </xs:attribute>
     <xs:attribute name="createFolder" type="xs:string">
       <xs:annotation>
-        <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, the folder to move to is created if it does not exist (default: false)</xs:documentation>
+        <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, the folder to move or copy to is created if it does not exist (default: false)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="destination" type="xs:string">
@@ -27602,7 +26898,12 @@
     </xs:attribute>
     <xs:attribute name="numberOfBackups" type="xs:string">
       <xs:annotation>
-        <xs:documentation>for action=write, and for action=append with rotateSize&gt;0: the number of backup files that is kept (default: 0)</xs:documentation>
+        <xs:documentation>for action=write, and for action=append with rotateSize&gt;0: the number of backup files that is kept. The inputFolder must point to the directory where the file resides (default: 0)</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="overwrite" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, for actions move, copy or rename, the destination file is overwritten if it already exists (default: false)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="root" type="xs:string">
@@ -27612,12 +26913,12 @@
     </xs:attribute>
     <xs:attribute name="rotateDays" type="xs:string">
       <xs:annotation>
-        <xs:documentation>for action=append: when set to a positive number, the file is rotated each day, and this number of files is kept (default: 0)</xs:documentation>
+        <xs:documentation>for action=append: when set to a positive number, the file is rotated each day, and this number of files is kept. The inputFolder must point to the directory where the file resides (default: 0)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="rotateSize" type="xs:string">
       <xs:annotation>
-        <xs:documentation>for action=append: when set to a positive number, the file is rotated when it has reached the specified size, and the number of files specified in numberOfBackups is kept (default: 0)</xs:documentation>
+        <xs:documentation>for action=append: when set to a positive number, the file is rotated when it has reached the specified size, and the number of files specified in numberOfBackups is kept. Size is specified in plain bytes, suffixes like 'K', 'M' or 'G' are not recognized. The inputFolder must point to the directory where the file resides (default: 0)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="wildcard" type="xs:string">
@@ -27654,7 +26955,7 @@
     </xs:attribute>
     <xs:attribute name="createFolder" type="xs:string">
       <xs:annotation>
-        <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, the folder to move to is created if it does not exist (default: false)</xs:documentation>
+        <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, the folder to move or copy to is created if it does not exist (default: false)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="destination" type="xs:string">
@@ -27750,7 +27051,12 @@
     </xs:attribute>
     <xs:attribute name="numberOfBackups" type="xs:string">
       <xs:annotation>
-        <xs:documentation>for action=write, and for action=append with rotateSize&gt;0: the number of backup files that is kept (default: 0)</xs:documentation>
+        <xs:documentation>for action=write, and for action=append with rotateSize&gt;0: the number of backup files that is kept. The inputFolder must point to the directory where the file resides (default: 0)</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="overwrite" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, for actions move, copy or rename, the destination file is overwritten if it already exists (default: false)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="preserveInput" type="xs:string">
@@ -27771,12 +27077,12 @@
     </xs:attribute>
     <xs:attribute name="rotateDays" type="xs:string">
       <xs:annotation>
-        <xs:documentation>for action=append: when set to a positive number, the file is rotated each day, and this number of files is kept (default: 0)</xs:documentation>
+        <xs:documentation>for action=append: when set to a positive number, the file is rotated each day, and this number of files is kept. The inputFolder must point to the directory where the file resides (default: 0)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="rotateSize" type="xs:string">
       <xs:annotation>
-        <xs:documentation>for action=append: when set to a positive number, the file is rotated when it has reached the specified size, and the number of files specified in numberOfBackups is kept (default: 0)</xs:documentation>
+        <xs:documentation>for action=append: when set to a positive number, the file is rotated when it has reached the specified size, and the number of files specified in numberOfBackups is kept. Size is specified in plain bytes, suffixes like 'K', 'M' or 'G' are not recognized. The inputFolder must point to the directory where the file resides (default: 0)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="secLogSessionKeys" type="xs:string">
@@ -27837,7 +27143,7 @@
     </xs:attribute>
     <xs:attribute name="createFolder" type="xs:string">
       <xs:annotation>
-        <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, the folder to move to is created if it does not exist (default: false)</xs:documentation>
+        <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, the folder to move or copy to is created if it does not exist (default: false)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="destination" type="xs:string">
@@ -27867,7 +27173,12 @@
     </xs:attribute>
     <xs:attribute name="numberOfBackups" type="xs:string">
       <xs:annotation>
-        <xs:documentation>for action=write, and for action=append with rotateSize&gt;0: the number of backup files that is kept (default: 0)</xs:documentation>
+        <xs:documentation>for action=write, and for action=append with rotateSize&gt;0: the number of backup files that is kept. The inputFolder must point to the directory where the file resides (default: 0)</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="overwrite" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, for actions move, copy or rename, the destination file is overwritten if it already exists (default: false)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="root" type="xs:string">
@@ -27877,12 +27188,12 @@
     </xs:attribute>
     <xs:attribute name="rotateDays" type="xs:string">
       <xs:annotation>
-        <xs:documentation>for action=append: when set to a positive number, the file is rotated each day, and this number of files is kept (default: 0)</xs:documentation>
+        <xs:documentation>for action=append: when set to a positive number, the file is rotated each day, and this number of files is kept. The inputFolder must point to the directory where the file resides (default: 0)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="rotateSize" type="xs:string">
       <xs:annotation>
-        <xs:documentation>for action=append: when set to a positive number, the file is rotated when it has reached the specified size, and the number of files specified in numberOfBackups is kept (default: 0)</xs:documentation>
+        <xs:documentation>for action=append: when set to a positive number, the file is rotated when it has reached the specified size, and the number of files specified in numberOfBackups is kept. Size is specified in plain bytes, suffixes like 'K', 'M' or 'G' are not recognized. The inputFolder must point to the directory where the file resides (default: 0)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="wildcard" type="xs:string">
@@ -29112,20 +28423,19 @@
     </xs:attribute>
     <xs:attribute name="blobCharset" type="xs:string">
       <xs:annotation>
-        <xs:documentation>charset used to read blobs (default: utf-8)</xs:documentation>
+        <xs:documentation>Charset used to read blobs (default: UTF-8)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="blobSmartGet" type="xs:string">
       <xs:annotation>
-        <xs:documentation>controls automatically whether blobdata is stored compressed and/or serialized in the database (default: false)</xs:documentation>
+        <xs:documentation>Controls automatically whether blobdata is stored compressed and/or serialized in the database (default: false)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="blobsCompressed" type="xs:string">
       <xs:annotation>
-        <xs:documentation>controls whether blobdata is considered stored compressed in the database (default: true)</xs:documentation>
+        <xs:documentation>Controls whether blobdata is considered stored compressed in the database (default: true)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="commitLocalTransactionQuery" type="xs:string" />
     <xs:attribute name="connectionsArePooled" type="xs:string" />
     <xs:attribute name="credentials" type="xs:string">
       <xs:annotation>
@@ -29151,17 +28461,17 @@
     <xs:attribute name="jndiProperties" type="xs:string" />
     <xs:attribute name="keyField" type="xs:string">
       <xs:annotation>
-        <xs:documentation>primary key field of the table, used to identify messages</xs:documentation>
+        <xs:documentation>Primary key field of the table, used to identify messages</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="messageField" type="xs:string">
       <xs:annotation>
-        <xs:documentation>(optional) field containing the message data (default: &lt;i&gt;same as keyfield&lt;/i&gt;)</xs:documentation>
+        <xs:documentation>(Optional) field containing the message data (default: &lt;i&gt;same as keyField&lt;/i&gt;)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="messageFieldType" type="xs:string">
       <xs:annotation>
-        <xs:documentation>type of the field containing the message data: either string, clob or blob (default: &lt;i&gt;string&lt;/i&gt;)</xs:documentation>
+        <xs:documentation>Type of the field containing the message data: either String, clob or blob (default: &lt;i&gt;String&lt;/i&gt;)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="moveToMessageLog" type="xs:string">
@@ -29224,7 +28534,6 @@
         <xs:documentation>identifier for this service</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="startLocalTransactionQuery" type="xs:string" />
     <xs:attribute name="statusField" type="xs:string">
       <xs:annotation>
         <xs:documentation>Field containing the status of the message</xs:documentation>
@@ -29238,6 +28547,11 @@
     <xs:attribute name="statusValueError" type="xs:string">
       <xs:annotation>
         <xs:documentation>Value of statusField indicating the processing of the row resulted in an error</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="statusValueInProcess" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Value of status field indicating is being processed. Can be left emtpy if database has SKIP LOCKED functionality</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="statusValueProcessed" type="xs:string">
@@ -29934,7 +29248,7 @@
         <xs:documentation>proxy realm (default:  )</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="proxyUserName" type="xs:string">
+    <xs:attribute name="proxyUsername" type="xs:string">
       <xs:annotation>
         <xs:documentation>proxy username (default:  )</xs:documentation>
       </xs:annotation>
@@ -30206,7 +29520,7 @@
         <xs:documentation>proxy realm (default:  )</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="proxyUserName" type="xs:string">
+    <xs:attribute name="proxyUsername" type="xs:string">
       <xs:annotation>
         <xs:documentation>proxy username (default:  )</xs:documentation>
       </xs:annotation>
@@ -30462,7 +29776,7 @@
         <xs:documentation>proxy realm (default:  )</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="proxyUserName" type="xs:string">
+    <xs:attribute name="proxyUsername" type="xs:string">
       <xs:annotation>
         <xs:documentation>proxy username (default:  )</xs:documentation>
       </xs:annotation>
@@ -30712,7 +30026,7 @@
         <xs:documentation>proxy realm (default:  )</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="proxyUserName" type="xs:string">
+    <xs:attribute name="proxyUsername" type="xs:string">
       <xs:annotation>
         <xs:documentation>proxy username (default:  )</xs:documentation>
       </xs:annotation>
@@ -30975,8 +30289,6 @@
         <xs:element name="Afm2EdiFactSender" type="Afm2EdiFactSenderType" minOccurs="0" />
         <xs:element name="AmazonS3Sender" type="AmazonS3SenderType" minOccurs="0" />
         <xs:element name="BisJmsSender" type="BisJmsSenderType" minOccurs="0" />
-        <xs:element name="CmisHttpSender" type="CmisHttpSenderType" minOccurs="0" />
-        <xs:element name="CmisSender" type="CmisSenderType" minOccurs="0" />
         <xs:element name="CommandSender" type="CommandSenderType" minOccurs="0" />
         <xs:element name="DelaySender" type="DelaySenderType" minOccurs="0" />
         <xs:element name="DirectQuerySender" type="DirectQuerySenderType" minOccurs="0" />
@@ -31047,7 +30359,7 @@
     </xs:attribute>
     <xs:attribute name="maxConcurrentThreads" type="xs:string">
       <xs:annotation>
-        <xs:documentation>sets and upper limit to the amount of concurrent threads that can be run simultaneously. use 0 to disable. (default: 0)</xs:documentation>
+        <xs:documentation>Set the upper limit to the amount of concurrent threads that can be run simultaneously. Use 0 to disable. (default: 0)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="name" type="xs:string" use="required">
@@ -31720,7 +31032,6 @@
       <xs:choice minOccurs="0">
         <xs:element name="ApiListener" type="ApiListenerType" minOccurs="0" />
         <xs:element name="BisJmsListener" type="BisJmsListenerType" minOccurs="0" />
-        <xs:element name="CmisEventListener" type="CmisEventListenerType" minOccurs="0" />
         <xs:element name="DirectoryListener" type="DirectoryListenerType" minOccurs="0" />
         <xs:element name="EsbJmsListener" type="EsbJmsListenerType" minOccurs="0" />
         <xs:element name="ExchangeMailListener" type="ExchangeMailListenerType" minOccurs="0" />
@@ -31728,7 +31039,6 @@
         <xs:element name="FtpListener" type="FtpListenerType" minOccurs="0" />
         <xs:element name="FxfListener" type="FxfListenerType" minOccurs="0" />
         <xs:element name="HttpListener" type="HttpListenerType" minOccurs="0" />
-        <xs:element name="IfsaProviderListener" type="IfsaProviderListenerType" minOccurs="0" />
         <xs:element name="IfsaSimulatorJmsListener" type="IfsaSimulatorJmsListenerType" minOccurs="0" />
         <xs:element name="JavaListener" type="JavaListenerType" minOccurs="0" />
         <xs:element name="JdbcListener" type="JdbcListenerType" minOccurs="0" />
@@ -32534,7 +31844,7 @@
     </xs:attribute>
     <xs:attribute name="dateFormat" type="xs:string">
       <xs:annotation>
-        <xs:documentation>format to store date in (default: fullisoformat: yyyy-mm-dd't'hh:mm:sszzz)</xs:documentation>
+        <xs:documentation>Format to store date in (default: full ISO format: yyyy-MM-dd'T'HH:mm:sszzz)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="durationThreshold" type="xs:string">
@@ -32626,7 +31936,7 @@
     </xs:attribute>
     <xs:attribute name="returnFixedDate" type="xs:string">
       <xs:annotation>
-        <xs:documentation>if &lt;code&gt;true&lt;/code&gt;, the date/time returned will always be december 17, 2001, 09:30:47 (for testing purposes only). it is overridden by the value of the pipelinesession key &lt;code&gt;stub4testtool.fixeddate&lt;/code&gt; when it exists (default: &lt;code&gt;false&lt;/code&gt;)</xs:documentation>
+        <xs:documentation>If &lt;code&gt;true&lt;/code&gt;, the date/time returned will always be 2001-12-17 09:30:47 (for testing purposes only). It is overridden by the value of the pipelinesession key &lt;code&gt;stub4testtool.fixeddate&lt;/code&gt; when it exists (default: &lt;code&gt;false&lt;/code&gt;)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="secLogSessionKeys" type="xs:string">
@@ -32636,7 +31946,7 @@
     </xs:attribute>
     <xs:attribute name="sessionKey" type="xs:string">
       <xs:annotation>
-        <xs:documentation>key of session variable to store systemdate in (default: systemdate)</xs:documentation>
+        <xs:documentation>Key of session variable to store systemdate in (default: systemdate)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="skipOnEmptyInput" type="xs:string">
@@ -32646,7 +31956,7 @@
     </xs:attribute>
     <xs:attribute name="sleepWhenEqualToPrevious" type="xs:string">
       <xs:annotation>
-        <xs:documentation>set to a time in millisecond to create a value that is different to the previous returned value by a putsystemdateinsession pipe in this virtual machine. the thread will sleep for the specified time before recalculating a new value. set the timezone to a value without daylight saving time (like gmt+1) to prevent this pipe to generate two equal value's when the clock is set back. &lt;b&gt;note:&lt;/b&gt; when you're looking for a guid parameter for you xslt it might be better to use &amp;lt;param name=&amp;quot;guid&amp;quot; pattern=&amp;quot;{hostname}_{uid}&amp;quot;/&amp;gt;, see {@link nl.nn.adapterframework.parameters.parameter} (default: -1 (disabled))</xs:documentation>
+        <xs:documentation>Set to a time in millisecond to create a value that is different to the previous returned value by a PutSystemDateInSession pipe in this virtual machine. The thread will sleep for the specified time before recalculating a new value. Set the timezone to a value without Daylight Saving Time (like GMT+1) to prevent this pipe to generate two equal value's when the clock is set back. &lt;b&gt;note:&lt;/b&gt; When you're looking for a GUID parameter for your XSLT it might be better to use &amp;lt;param name=&amp;quot;guid&amp;quot; pattern=&amp;quot;{hostname}_{uid}&amp;quot;/&amp;gt;, see {@link nl.nn.adapterframework.parameters.Parameter} (default: -1 (disabled))</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="storeResultInSessionKey" type="xs:string">
@@ -32656,7 +31966,7 @@
     </xs:attribute>
     <xs:attribute name="timeZone" type="xs:string">
       <xs:annotation>
-        <xs:documentation>the time zone to use for the formatter (default: the default time zone for the jvm)</xs:documentation>
+        <xs:documentation>Time zone to use for the formatter (default: the default time zone for the JVM)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="transactionAttribute" type="xs:string">
@@ -32681,7 +31991,6 @@
       <xs:choice minOccurs="0">
         <xs:element name="ApiListener" type="ApiListenerType" minOccurs="0" />
         <xs:element name="BisJmsListener" type="BisJmsListenerType" minOccurs="0" />
-        <xs:element name="CmisEventListener" type="CmisEventListenerType" minOccurs="0" />
         <xs:element name="DirectoryListener" type="DirectoryListenerType" minOccurs="0" />
         <xs:element name="EsbJmsListener" type="EsbJmsListenerType" minOccurs="0" />
         <xs:element name="ExchangeMailListener" type="ExchangeMailListenerType" minOccurs="0" />
@@ -32689,7 +31998,6 @@
         <xs:element name="FtpListener" type="FtpListenerType" minOccurs="0" />
         <xs:element name="FxfListener" type="FxfListenerType" minOccurs="0" />
         <xs:element name="HttpListener" type="HttpListenerType" minOccurs="0" />
-        <xs:element name="IfsaProviderListener" type="IfsaProviderListenerType" minOccurs="0" />
         <xs:element name="IfsaSimulatorJmsListener" type="IfsaSimulatorJmsListenerType" minOccurs="0" />
         <xs:element name="JavaListener" type="JavaListenerType" minOccurs="0" />
         <xs:element name="JdbcListener" type="JdbcListenerType" minOccurs="0" />
@@ -32713,8 +32021,6 @@
         <xs:element name="Afm2EdiFactErrorSender" type="Afm2EdiFactErrorSenderType" minOccurs="0" />
         <xs:element name="AmazonS3ErrorSender" type="AmazonS3ErrorSenderType" minOccurs="0" />
         <xs:element name="BisJmsErrorSender" type="BisJmsErrorSenderType" minOccurs="0" />
-        <xs:element name="CmisErrorSender" type="CmisErrorSenderType" minOccurs="0" />
-        <xs:element name="CmisHttpErrorSender" type="CmisHttpErrorSenderType" minOccurs="0" />
         <xs:element name="CommandErrorSender" type="CommandErrorSenderType" minOccurs="0" />
         <xs:element name="DelayErrorSender" type="DelayErrorSenderType" minOccurs="0" />
         <xs:element name="DirectQueryErrorSender" type="DirectQueryErrorSenderType" minOccurs="0" />
@@ -32782,8 +32088,6 @@
         <xs:element name="Afm2EdiFactSender" type="Afm2EdiFactSenderType" minOccurs="0" />
         <xs:element name="AmazonS3Sender" type="AmazonS3SenderType" minOccurs="0" />
         <xs:element name="BisJmsSender" type="BisJmsSenderType" minOccurs="0" />
-        <xs:element name="CmisHttpSender" type="CmisHttpSenderType" minOccurs="0" />
-        <xs:element name="CmisSender" type="CmisSenderType" minOccurs="0" />
         <xs:element name="CommandSender" type="CommandSenderType" minOccurs="0" />
         <xs:element name="DelaySender" type="DelaySenderType" minOccurs="0" />
         <xs:element name="DirectQuerySender" type="DirectQuerySenderType" minOccurs="0" />
@@ -33786,7 +33090,7 @@
         <xs:documentation>proxy realm (default:  )</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="proxyUserName" type="xs:string">
+    <xs:attribute name="proxyUsername" type="xs:string">
       <xs:annotation>
         <xs:documentation>proxy username (default:  )</xs:documentation>
       </xs:annotation>
@@ -34125,7 +33429,7 @@
         <xs:documentation>proxy realm (default:  )</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="proxyUserName" type="xs:string">
+    <xs:attribute name="proxyUsername" type="xs:string">
       <xs:annotation>
         <xs:documentation>proxy username (default:  )</xs:documentation>
       </xs:annotation>
@@ -34756,8 +34060,6 @@
         <xs:element name="Afm2EdiFactSender" type="Afm2EdiFactSenderType" minOccurs="0" />
         <xs:element name="AmazonS3Sender" type="AmazonS3SenderType" minOccurs="0" />
         <xs:element name="BisJmsSender" type="BisJmsSenderType" minOccurs="0" />
-        <xs:element name="CmisHttpSender" type="CmisHttpSenderType" minOccurs="0" />
-        <xs:element name="CmisSender" type="CmisSenderType" minOccurs="0" />
         <xs:element name="CommandSender" type="CommandSenderType" minOccurs="0" />
         <xs:element name="DelaySender" type="DelaySenderType" minOccurs="0" />
         <xs:element name="DirectQuerySender" type="DirectQuerySenderType" minOccurs="0" />
@@ -34865,6 +34167,11 @@
         <xs:documentation>xpath expression to extract audit trail from message</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+    <xs:attribute name="avoidLocking" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>If true, then select queries are executed in a way that avoids taking locks, e.g. with isolation mode 'read committed' instead of 'repeatable read'. (default: false)</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="blockSize" type="xs:string">
       <xs:annotation>
         <xs:documentation>Controls multiline behaviour. when set to a value greater than 0, it specifies the number of rows send in a block to the sender. (default: 0 (one line at a time, no prefix of suffix))</xs:documentation>
@@ -34910,7 +34217,11 @@
         <xs:documentation>xpath expression to extract correlationid from message</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="datasourceName" type="xs:string" />
+    <xs:attribute name="datasourceName" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>JNDI name of datasource to be used, can be configured via jmsRealm, too</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="durationThreshold" type="xs:string">
       <xs:annotation>
         <xs:documentation>(default: If durationThreshold &gt;=0 and the duration of the message processing exceeded the value specified (in milliseconds) the message is logged informatory)</xs:documentation>
@@ -35006,8 +34317,16 @@
         <xs:documentation>either MESSAGEID or CORRELATIONID. For asynchronous communication, the server side may either use the messageID or the correlationID in the correlationID field of the reply message. Use this property to set the behaviour of the reply-listener. (default: correlationid)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="lockRows" type="xs:string" />
-    <xs:attribute name="lockWait" type="xs:string" />
+    <xs:attribute name="lockRows" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>When set &lt;code&gt;true&lt;/code&gt;, exclusive row-level locks are obtained on all the rows identified by the select statement (e.g. by appending ' FOR UPDATE NOWAIT SKIP LOCKED' to the end of the query) (default: false)</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="lockWait" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>when set and &gt;=0, ' FOR UPDATE WAIT #' is used instead of ' FOR UPDATE NOWAIT SKIP LOCKED' (default: -1)</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="logIntermediaryResults" type="xs:string" />
     <xs:attribute name="maxChildThreads" type="xs:string">
       <xs:annotation>
@@ -35125,6 +34444,11 @@
         <xs:documentation>when set, the processing continues directly at the forward of this pipe, without executing the pipe itself (default: false)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+    <xs:attribute name="sqlDialect" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>If set, the SQL dialect in which the queries are written and should be translated from to the actual SQL dialect</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="stopConditionXPathExpression" type="xs:string">
       <xs:annotation>
         <xs:documentation>Expression evaluated on each result if set. Iteration stops if condition returns anything other than an empty result. To test for the root element to have an attribute 'finished' with the value 'yes', the expression &lt;code&gt;*[@finished='yes']&lt;/code&gt; can be used. This can be used if the condition to stop can be derived from the item result. To stop after a maximum number of items has been processed, use &lt;code&gt;maxItems&lt;/code&gt;.Previous versions documented that &lt;code&gt;position()=2&lt;/code&gt; could be used. This is not working as expected; Use maxItems instead</xs:documentation>
@@ -35175,9 +34499,19 @@
         <xs:documentation>timeout (in seconds) of transaction started to process a message. (default: &lt;code&gt;0&lt;/code&gt; (use system default))</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+    <xs:attribute name="trimSpaces" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Remove trailing blanks from all result values. (default: true)</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="useInputForExtract" type="xs:string">
       <xs:annotation>
         <xs:documentation>when set &lt;code&gt;true&lt;/code&gt;, the input of a pipe is used to extract audit trail, correlationid and label (instead of the wrapped input) (default: true)</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="useNamedParams" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>When &lt;code&gt;true&lt;/code&gt;, every string in the message which equals &lt;code&gt;?{paramname+UNP_END+&lt;/code&gt; will be replaced by the setter method for the corresponding parameter. The parameters don't need to be in the correct order and unused parameters are skipped. (default: false)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="writeToSecLog" type="xs:string" />
@@ -35364,7 +34698,7 @@
     </xs:attribute>
     <xs:attribute name="createFolder" type="xs:string">
       <xs:annotation>
-        <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, the folder to move to is created if it does not exist (default: false)</xs:documentation>
+        <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, the folder to move or copy to is created if it does not exist (default: false)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="destination" type="xs:string">
@@ -35399,7 +34733,12 @@
     </xs:attribute>
     <xs:attribute name="numberOfBackups" type="xs:string">
       <xs:annotation>
-        <xs:documentation>for action=write, and for action=append with rotateSize&gt;0: the number of backup files that is kept (default: 0)</xs:documentation>
+        <xs:documentation>for action=write, and for action=append with rotateSize&gt;0: the number of backup files that is kept. The inputFolder must point to the directory where the file resides (default: 0)</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="overwrite" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, for actions move, copy or rename, the destination file is overwritten if it already exists (default: false)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="password" type="xs:string">
@@ -35409,12 +34748,12 @@
     </xs:attribute>
     <xs:attribute name="rotateDays" type="xs:string">
       <xs:annotation>
-        <xs:documentation>for action=append: when set to a positive number, the file is rotated each day, and this number of files is kept (default: 0)</xs:documentation>
+        <xs:documentation>for action=append: when set to a positive number, the file is rotated each day, and this number of files is kept. The inputFolder must point to the directory where the file resides (default: 0)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="rotateSize" type="xs:string">
       <xs:annotation>
-        <xs:documentation>for action=append: when set to a positive number, the file is rotated when it has reached the specified size, and the number of files specified in numberOfBackups is kept (default: 0)</xs:documentation>
+        <xs:documentation>for action=append: when set to a positive number, the file is rotated when it has reached the specified size, and the number of files specified in numberOfBackups is kept. Size is specified in plain bytes, suffixes like 'K', 'M' or 'G' are not recognized. The inputFolder must point to the directory where the file resides (default: 0)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="share" type="xs:string">
@@ -35461,7 +34800,7 @@
     </xs:attribute>
     <xs:attribute name="createFolder" type="xs:string">
       <xs:annotation>
-        <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, the folder to move to is created if it does not exist (default: false)</xs:documentation>
+        <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, the folder to move or copy to is created if it does not exist (default: false)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="destination" type="xs:string">
@@ -35562,7 +34901,12 @@
     </xs:attribute>
     <xs:attribute name="numberOfBackups" type="xs:string">
       <xs:annotation>
-        <xs:documentation>for action=write, and for action=append with rotateSize&gt;0: the number of backup files that is kept (default: 0)</xs:documentation>
+        <xs:documentation>for action=write, and for action=append with rotateSize&gt;0: the number of backup files that is kept. The inputFolder must point to the directory where the file resides (default: 0)</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="overwrite" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, for actions move, copy or rename, the destination file is overwritten if it already exists (default: false)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="password" type="xs:string">
@@ -35583,12 +34927,12 @@
     </xs:attribute>
     <xs:attribute name="rotateDays" type="xs:string">
       <xs:annotation>
-        <xs:documentation>for action=append: when set to a positive number, the file is rotated each day, and this number of files is kept (default: 0)</xs:documentation>
+        <xs:documentation>for action=append: when set to a positive number, the file is rotated each day, and this number of files is kept. The inputFolder must point to the directory where the file resides (default: 0)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="rotateSize" type="xs:string">
       <xs:annotation>
-        <xs:documentation>for action=append: when set to a positive number, the file is rotated when it has reached the specified size, and the number of files specified in numberOfBackups is kept (default: 0)</xs:documentation>
+        <xs:documentation>for action=append: when set to a positive number, the file is rotated when it has reached the specified size, and the number of files specified in numberOfBackups is kept. Size is specified in plain bytes, suffixes like 'K', 'M' or 'G' are not recognized. The inputFolder must point to the directory where the file resides (default: 0)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="secLogSessionKeys" type="xs:string">
@@ -35659,7 +35003,7 @@
     </xs:attribute>
     <xs:attribute name="createFolder" type="xs:string">
       <xs:annotation>
-        <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, the folder to move to is created if it does not exist (default: false)</xs:documentation>
+        <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, the folder to move or copy to is created if it does not exist (default: false)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="destination" type="xs:string">
@@ -35694,7 +35038,12 @@
     </xs:attribute>
     <xs:attribute name="numberOfBackups" type="xs:string">
       <xs:annotation>
-        <xs:documentation>for action=write, and for action=append with rotateSize&gt;0: the number of backup files that is kept (default: 0)</xs:documentation>
+        <xs:documentation>for action=write, and for action=append with rotateSize&gt;0: the number of backup files that is kept. The inputFolder must point to the directory where the file resides (default: 0)</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="overwrite" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, for actions move, copy or rename, the destination file is overwritten if it already exists (default: false)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="password" type="xs:string">
@@ -35704,12 +35053,12 @@
     </xs:attribute>
     <xs:attribute name="rotateDays" type="xs:string">
       <xs:annotation>
-        <xs:documentation>for action=append: when set to a positive number, the file is rotated each day, and this number of files is kept (default: 0)</xs:documentation>
+        <xs:documentation>for action=append: when set to a positive number, the file is rotated each day, and this number of files is kept. The inputFolder must point to the directory where the file resides (default: 0)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="rotateSize" type="xs:string">
       <xs:annotation>
-        <xs:documentation>for action=append: when set to a positive number, the file is rotated when it has reached the specified size, and the number of files specified in numberOfBackups is kept (default: 0)</xs:documentation>
+        <xs:documentation>for action=append: when set to a positive number, the file is rotated when it has reached the specified size, and the number of files specified in numberOfBackups is kept. Size is specified in plain bytes, suffixes like 'K', 'M' or 'G' are not recognized. The inputFolder must point to the directory where the file resides (default: 0)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="share" type="xs:string">
@@ -35749,7 +35098,7 @@
     </xs:attribute>
     <xs:attribute name="createFolder" type="xs:string">
       <xs:annotation>
-        <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, the folder to move to is created if it does not exist (default: false)</xs:documentation>
+        <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, the folder to move or copy to is created if it does not exist (default: false)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="destination" type="xs:string">
@@ -35784,7 +35133,12 @@
     </xs:attribute>
     <xs:attribute name="numberOfBackups" type="xs:string">
       <xs:annotation>
-        <xs:documentation>for action=write, and for action=append with rotateSize&gt;0: the number of backup files that is kept (default: 0)</xs:documentation>
+        <xs:documentation>for action=write, and for action=append with rotateSize&gt;0: the number of backup files that is kept. The inputFolder must point to the directory where the file resides (default: 0)</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="overwrite" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, for actions move, copy or rename, the destination file is overwritten if it already exists (default: false)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="password" type="xs:string">
@@ -35799,12 +35153,12 @@
     </xs:attribute>
     <xs:attribute name="rotateDays" type="xs:string">
       <xs:annotation>
-        <xs:documentation>for action=append: when set to a positive number, the file is rotated each day, and this number of files is kept (default: 0)</xs:documentation>
+        <xs:documentation>for action=append: when set to a positive number, the file is rotated each day, and this number of files is kept. The inputFolder must point to the directory where the file resides (default: 0)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="rotateSize" type="xs:string">
       <xs:annotation>
-        <xs:documentation>for action=append: when set to a positive number, the file is rotated when it has reached the specified size, and the number of files specified in numberOfBackups is kept (default: 0)</xs:documentation>
+        <xs:documentation>for action=append: when set to a positive number, the file is rotated when it has reached the specified size, and the number of files specified in numberOfBackups is kept. Size is specified in plain bytes, suffixes like 'K', 'M' or 'G' are not recognized. The inputFolder must point to the directory where the file resides (default: 0)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="share" type="xs:string">
@@ -35963,7 +35317,7 @@
     </xs:attribute>
     <xs:attribute name="createFolder" type="xs:string">
       <xs:annotation>
-        <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, the folder to move to is created if it does not exist (default: false)</xs:documentation>
+        <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, the folder to move or copy to is created if it does not exist (default: false)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="destination" type="xs:string">
@@ -36064,7 +35418,12 @@
     </xs:attribute>
     <xs:attribute name="numberOfBackups" type="xs:string">
       <xs:annotation>
-        <xs:documentation>for action=write, and for action=append with rotateSize&gt;0: the number of backup files that is kept (default: 0)</xs:documentation>
+        <xs:documentation>for action=write, and for action=append with rotateSize&gt;0: the number of backup files that is kept. The inputFolder must point to the directory where the file resides (default: 0)</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="overwrite" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, for actions move, copy or rename, the destination file is overwritten if it already exists (default: false)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="password" type="xs:string">
@@ -36090,12 +35449,12 @@
     </xs:attribute>
     <xs:attribute name="rotateDays" type="xs:string">
       <xs:annotation>
-        <xs:documentation>for action=append: when set to a positive number, the file is rotated each day, and this number of files is kept (default: 0)</xs:documentation>
+        <xs:documentation>for action=append: when set to a positive number, the file is rotated each day, and this number of files is kept. The inputFolder must point to the directory where the file resides (default: 0)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="rotateSize" type="xs:string">
       <xs:annotation>
-        <xs:documentation>for action=append: when set to a positive number, the file is rotated when it has reached the specified size, and the number of files specified in numberOfBackups is kept (default: 0)</xs:documentation>
+        <xs:documentation>for action=append: when set to a positive number, the file is rotated when it has reached the specified size, and the number of files specified in numberOfBackups is kept. Size is specified in plain bytes, suffixes like 'K', 'M' or 'G' are not recognized. The inputFolder must point to the directory where the file resides (default: 0)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="secLogSessionKeys" type="xs:string">
@@ -36171,7 +35530,7 @@
     </xs:attribute>
     <xs:attribute name="createFolder" type="xs:string">
       <xs:annotation>
-        <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, the folder to move to is created if it does not exist (default: false)</xs:documentation>
+        <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, the folder to move or copy to is created if it does not exist (default: false)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="destination" type="xs:string">
@@ -36206,7 +35565,12 @@
     </xs:attribute>
     <xs:attribute name="numberOfBackups" type="xs:string">
       <xs:annotation>
-        <xs:documentation>for action=write, and for action=append with rotateSize&gt;0: the number of backup files that is kept (default: 0)</xs:documentation>
+        <xs:documentation>for action=write, and for action=append with rotateSize&gt;0: the number of backup files that is kept. The inputFolder must point to the directory where the file resides (default: 0)</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="overwrite" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, for actions move, copy or rename, the destination file is overwritten if it already exists (default: false)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="password" type="xs:string">
@@ -36221,12 +35585,12 @@
     </xs:attribute>
     <xs:attribute name="rotateDays" type="xs:string">
       <xs:annotation>
-        <xs:documentation>for action=append: when set to a positive number, the file is rotated each day, and this number of files is kept (default: 0)</xs:documentation>
+        <xs:documentation>for action=append: when set to a positive number, the file is rotated each day, and this number of files is kept. The inputFolder must point to the directory where the file resides (default: 0)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="rotateSize" type="xs:string">
       <xs:annotation>
-        <xs:documentation>for action=append: when set to a positive number, the file is rotated when it has reached the specified size, and the number of files specified in numberOfBackups is kept (default: 0)</xs:documentation>
+        <xs:documentation>for action=append: when set to a positive number, the file is rotated when it has reached the specified size, and the number of files specified in numberOfBackups is kept. Size is specified in plain bytes, suffixes like 'K', 'M' or 'G' are not recognized. The inputFolder must point to the directory where the file resides (default: 0)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="share" type="xs:string">
@@ -36266,7 +35630,7 @@
     </xs:attribute>
     <xs:attribute name="createFolder" type="xs:string">
       <xs:annotation>
-        <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, the folder to move to is created if it does not exist (default: false)</xs:documentation>
+        <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, the folder to move or copy to is created if it does not exist (default: false)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="destination" type="xs:string">
@@ -36301,7 +35665,12 @@
     </xs:attribute>
     <xs:attribute name="numberOfBackups" type="xs:string">
       <xs:annotation>
-        <xs:documentation>for action=write, and for action=append with rotateSize&gt;0: the number of backup files that is kept (default: 0)</xs:documentation>
+        <xs:documentation>for action=write, and for action=append with rotateSize&gt;0: the number of backup files that is kept. The inputFolder must point to the directory where the file resides (default: 0)</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="overwrite" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, for actions move, copy or rename, the destination file is overwritten if it already exists (default: false)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="password" type="xs:string">
@@ -36316,12 +35685,12 @@
     </xs:attribute>
     <xs:attribute name="rotateDays" type="xs:string">
       <xs:annotation>
-        <xs:documentation>for action=append: when set to a positive number, the file is rotated each day, and this number of files is kept (default: 0)</xs:documentation>
+        <xs:documentation>for action=append: when set to a positive number, the file is rotated each day, and this number of files is kept. The inputFolder must point to the directory where the file resides (default: 0)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="rotateSize" type="xs:string">
       <xs:annotation>
-        <xs:documentation>for action=append: when set to a positive number, the file is rotated when it has reached the specified size, and the number of files specified in numberOfBackups is kept (default: 0)</xs:documentation>
+        <xs:documentation>for action=append: when set to a positive number, the file is rotated when it has reached the specified size, and the number of files specified in numberOfBackups is kept. Size is specified in plain bytes, suffixes like 'K', 'M' or 'G' are not recognized. The inputFolder must point to the directory where the file resides (default: 0)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="share" type="xs:string">
@@ -36480,7 +35849,7 @@
     </xs:attribute>
     <xs:attribute name="createFolder" type="xs:string">
       <xs:annotation>
-        <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, the folder to move to is created if it does not exist (default: false)</xs:documentation>
+        <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, the folder to move or copy to is created if it does not exist (default: false)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="destination" type="xs:string">
@@ -36581,7 +35950,12 @@
     </xs:attribute>
     <xs:attribute name="numberOfBackups" type="xs:string">
       <xs:annotation>
-        <xs:documentation>for action=write, and for action=append with rotateSize&gt;0: the number of backup files that is kept (default: 0)</xs:documentation>
+        <xs:documentation>for action=write, and for action=append with rotateSize&gt;0: the number of backup files that is kept. The inputFolder must point to the directory where the file resides (default: 0)</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="overwrite" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, for actions move, copy or rename, the destination file is overwritten if it already exists (default: false)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="password" type="xs:string">
@@ -36607,12 +35981,12 @@
     </xs:attribute>
     <xs:attribute name="rotateDays" type="xs:string">
       <xs:annotation>
-        <xs:documentation>for action=append: when set to a positive number, the file is rotated each day, and this number of files is kept (default: 0)</xs:documentation>
+        <xs:documentation>for action=append: when set to a positive number, the file is rotated each day, and this number of files is kept. The inputFolder must point to the directory where the file resides (default: 0)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="rotateSize" type="xs:string">
       <xs:annotation>
-        <xs:documentation>for action=append: when set to a positive number, the file is rotated when it has reached the specified size, and the number of files specified in numberOfBackups is kept (default: 0)</xs:documentation>
+        <xs:documentation>for action=append: when set to a positive number, the file is rotated when it has reached the specified size, and the number of files specified in numberOfBackups is kept. Size is specified in plain bytes, suffixes like 'K', 'M' or 'G' are not recognized. The inputFolder must point to the directory where the file resides (default: 0)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="secLogSessionKeys" type="xs:string">
@@ -36688,7 +36062,7 @@
     </xs:attribute>
     <xs:attribute name="createFolder" type="xs:string">
       <xs:annotation>
-        <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, the folder to move to is created if it does not exist (default: false)</xs:documentation>
+        <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, the folder to move or copy to is created if it does not exist (default: false)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="destination" type="xs:string">
@@ -36723,7 +36097,12 @@
     </xs:attribute>
     <xs:attribute name="numberOfBackups" type="xs:string">
       <xs:annotation>
-        <xs:documentation>for action=write, and for action=append with rotateSize&gt;0: the number of backup files that is kept (default: 0)</xs:documentation>
+        <xs:documentation>for action=write, and for action=append with rotateSize&gt;0: the number of backup files that is kept. The inputFolder must point to the directory where the file resides (default: 0)</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="overwrite" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>when set to &lt;code&gt;true&lt;/code&gt;, for actions move, copy or rename, the destination file is overwritten if it already exists (default: false)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="password" type="xs:string">
@@ -36738,12 +36117,12 @@
     </xs:attribute>
     <xs:attribute name="rotateDays" type="xs:string">
       <xs:annotation>
-        <xs:documentation>for action=append: when set to a positive number, the file is rotated each day, and this number of files is kept (default: 0)</xs:documentation>
+        <xs:documentation>for action=append: when set to a positive number, the file is rotated each day, and this number of files is kept. The inputFolder must point to the directory where the file resides (default: 0)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="rotateSize" type="xs:string">
       <xs:annotation>
-        <xs:documentation>for action=append: when set to a positive number, the file is rotated when it has reached the specified size, and the number of files specified in numberOfBackups is kept (default: 0)</xs:documentation>
+        <xs:documentation>for action=append: when set to a positive number, the file is rotated when it has reached the specified size, and the number of files specified in numberOfBackups is kept. Size is specified in plain bytes, suffixes like 'K', 'M' or 'G' are not recognized. The inputFolder must point to the directory where the file resides (default: 0)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="share" type="xs:string">
@@ -37123,7 +36502,7 @@
         <xs:documentation>realm used for proxy authentication</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="proxyUserName" type="xs:string">
+    <xs:attribute name="proxyUsername" type="xs:string">
       <xs:annotation>
         <xs:documentation>username used to obtain credentials for proxy authentication</xs:documentation>
       </xs:annotation>
@@ -37323,7 +36702,7 @@
         <xs:documentation>realm used for proxy authentication</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="proxyUserName" type="xs:string">
+    <xs:attribute name="proxyUsername" type="xs:string">
       <xs:annotation>
         <xs:documentation>username used to obtain credentials for proxy authentication</xs:documentation>
       </xs:annotation>
@@ -37418,8 +36797,6 @@
         <xs:element name="Afm2EdiFactSender" type="Afm2EdiFactSenderType" minOccurs="0" />
         <xs:element name="AmazonS3Sender" type="AmazonS3SenderType" minOccurs="0" />
         <xs:element name="BisJmsSender" type="BisJmsSenderType" minOccurs="0" />
-        <xs:element name="CmisHttpSender" type="CmisHttpSenderType" minOccurs="0" />
-        <xs:element name="CmisSender" type="CmisSenderType" minOccurs="0" />
         <xs:element name="CommandSender" type="CommandSenderType" minOccurs="0" />
         <xs:element name="DelaySender" type="DelaySenderType" minOccurs="0" />
         <xs:element name="DirectQuerySender" type="DirectQuerySenderType" minOccurs="0" />
@@ -37479,7 +36856,6 @@
       <xs:choice minOccurs="0">
         <xs:element name="ApiListener" type="ApiListenerType" minOccurs="0" />
         <xs:element name="BisJmsListener" type="BisJmsListenerType" minOccurs="0" />
-        <xs:element name="CmisEventListener" type="CmisEventListenerType" minOccurs="0" />
         <xs:element name="DirectoryListener" type="DirectoryListenerType" minOccurs="0" />
         <xs:element name="EsbJmsListener" type="EsbJmsListenerType" minOccurs="0" />
         <xs:element name="ExchangeMailListener" type="ExchangeMailListenerType" minOccurs="0" />
@@ -37487,7 +36863,6 @@
         <xs:element name="FtpListener" type="FtpListenerType" minOccurs="0" />
         <xs:element name="FxfListener" type="FxfListenerType" minOccurs="0" />
         <xs:element name="HttpListener" type="HttpListenerType" minOccurs="0" />
-        <xs:element name="IfsaProviderListener" type="IfsaProviderListenerType" minOccurs="0" />
         <xs:element name="IfsaSimulatorJmsListener" type="IfsaSimulatorJmsListenerType" minOccurs="0" />
         <xs:element name="JavaListener" type="JavaListenerType" minOccurs="0" />
         <xs:element name="JdbcListener" type="JdbcListenerType" minOccurs="0" />
@@ -37799,8 +37174,6 @@
         <xs:element name="Afm2EdiFactSender" type="Afm2EdiFactSenderType" minOccurs="0" />
         <xs:element name="AmazonS3Sender" type="AmazonS3SenderType" minOccurs="0" />
         <xs:element name="BisJmsSender" type="BisJmsSenderType" minOccurs="0" />
-        <xs:element name="CmisHttpSender" type="CmisHttpSenderType" minOccurs="0" />
-        <xs:element name="CmisSender" type="CmisSenderType" minOccurs="0" />
         <xs:element name="CommandSender" type="CommandSenderType" minOccurs="0" />
         <xs:element name="DelaySender" type="DelaySenderType" minOccurs="0" />
         <xs:element name="DirectQuerySender" type="DirectQuerySenderType" minOccurs="0" />
@@ -37893,8 +37266,6 @@
         <xs:element name="Afm2EdiFactSender" type="Afm2EdiFactSenderType" minOccurs="0" />
         <xs:element name="AmazonS3Sender" type="AmazonS3SenderType" minOccurs="0" />
         <xs:element name="BisJmsSender" type="BisJmsSenderType" minOccurs="0" />
-        <xs:element name="CmisHttpSender" type="CmisHttpSenderType" minOccurs="0" />
-        <xs:element name="CmisSender" type="CmisSenderType" minOccurs="0" />
         <xs:element name="CommandSender" type="CommandSenderType" minOccurs="0" />
         <xs:element name="DelaySender" type="DelaySenderType" minOccurs="0" />
         <xs:element name="DirectQuerySender" type="DirectQuerySenderType" minOccurs="0" />
@@ -37986,8 +37357,6 @@
         <xs:element name="Afm2EdiFactSender" type="Afm2EdiFactSenderType" minOccurs="0" />
         <xs:element name="AmazonS3Sender" type="AmazonS3SenderType" minOccurs="0" />
         <xs:element name="BisJmsSender" type="BisJmsSenderType" minOccurs="0" />
-        <xs:element name="CmisHttpSender" type="CmisHttpSenderType" minOccurs="0" />
-        <xs:element name="CmisSender" type="CmisSenderType" minOccurs="0" />
         <xs:element name="CommandSender" type="CommandSenderType" minOccurs="0" />
         <xs:element name="DelaySender" type="DelaySenderType" minOccurs="0" />
         <xs:element name="DirectQuerySender" type="DirectQuerySenderType" minOccurs="0" />
@@ -38058,7 +37427,7 @@
     </xs:attribute>
     <xs:attribute name="maxConcurrentThreads" type="xs:string">
       <xs:annotation>
-        <xs:documentation>sets and upper limit to the amount of concurrent threads that can be run simultaneously. use 0 to disable. (default: 0)</xs:documentation>
+        <xs:documentation>Set the upper limit to the amount of concurrent threads that can be run simultaneously. Use 0 to disable. (default: 0)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="name" type="xs:string" use="required">
@@ -38095,8 +37464,6 @@
         <xs:element name="Afm2EdiFactSender" type="Afm2EdiFactSenderType" minOccurs="0" />
         <xs:element name="AmazonS3Sender" type="AmazonS3SenderType" minOccurs="0" />
         <xs:element name="BisJmsSender" type="BisJmsSenderType" minOccurs="0" />
-        <xs:element name="CmisHttpSender" type="CmisHttpSenderType" minOccurs="0" />
-        <xs:element name="CmisSender" type="CmisSenderType" minOccurs="0" />
         <xs:element name="CommandSender" type="CommandSenderType" minOccurs="0" />
         <xs:element name="DelaySender" type="DelaySenderType" minOccurs="0" />
         <xs:element name="DirectQuerySender" type="DirectQuerySenderType" minOccurs="0" />
@@ -38167,7 +37534,7 @@
     </xs:attribute>
     <xs:attribute name="maxConcurrentThreads" type="xs:string">
       <xs:annotation>
-        <xs:documentation>sets and upper limit to the amount of concurrent threads that can be run simultaneously. use 0 to disable. (default: 0)</xs:documentation>
+        <xs:documentation>Set the upper limit to the amount of concurrent threads that can be run simultaneously. Use 0 to disable. (default: 0)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="name" type="xs:string" use="required">
@@ -40451,8 +39818,6 @@
         <xs:element name="Afm2EdiFactSender" type="Afm2EdiFactSenderType" minOccurs="0" />
         <xs:element name="AmazonS3Sender" type="AmazonS3SenderType" minOccurs="0" />
         <xs:element name="BisJmsSender" type="BisJmsSenderType" minOccurs="0" />
-        <xs:element name="CmisHttpSender" type="CmisHttpSenderType" minOccurs="0" />
-        <xs:element name="CmisSender" type="CmisSenderType" minOccurs="0" />
         <xs:element name="CommandSender" type="CommandSenderType" minOccurs="0" />
         <xs:element name="DelaySender" type="DelaySenderType" minOccurs="0" />
         <xs:element name="DirectQuerySender" type="DirectQuerySenderType" minOccurs="0" />
@@ -41263,8 +40628,6 @@
         <xs:element name="Afm2EdiFactSender" type="Afm2EdiFactSenderType" minOccurs="0" />
         <xs:element name="AmazonS3Sender" type="AmazonS3SenderType" minOccurs="0" />
         <xs:element name="BisJmsSender" type="BisJmsSenderType" minOccurs="0" />
-        <xs:element name="CmisHttpSender" type="CmisHttpSenderType" minOccurs="0" />
-        <xs:element name="CmisSender" type="CmisSenderType" minOccurs="0" />
         <xs:element name="CommandSender" type="CommandSenderType" minOccurs="0" />
         <xs:element name="DelaySender" type="DelaySenderType" minOccurs="0" />
         <xs:element name="DirectQuerySender" type="DirectQuerySenderType" minOccurs="0" />
@@ -42768,7 +42131,11 @@
         <xs:documentation>controls whether pipe is included in configuration. when set &lt;code&gt;false&lt;/code&gt; or set to something else as &lt;code&gt;true&lt;/code&gt;, (even set to the empty string), the pipe is not included in the configuration (default: true)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="checkDirectory" type="xs:string" />
+    <xs:attribute name="assumeDirectoryExists" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>if set &lt;code&gt;true&lt;/code&gt;, validation of directory is ignored (default: false)</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="chompCharSize" type="xs:string">
       <xs:annotation>
         <xs:documentation>If set (&gt;=0) and the character data length inside a xml element exceeds this size, the character data is chomped (with a clear comment)</xs:documentation>
@@ -43258,7 +42625,7 @@
         <xs:documentation>proxy realm (default:  )</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="proxyUserName" type="xs:string">
+    <xs:attribute name="proxyUsername" type="xs:string">
       <xs:annotation>
         <xs:documentation>proxy username (default:  )</xs:documentation>
       </xs:annotation>
@@ -43740,7 +43107,7 @@
         <xs:documentation>proxy realm (default:  )</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="proxyUserName" type="xs:string">
+    <xs:attribute name="proxyUsername" type="xs:string">
       <xs:annotation>
         <xs:documentation>proxy username (default:  )</xs:documentation>
       </xs:annotation>
@@ -45625,8 +44992,6 @@
         <xs:element name="Afm2EdiFactSender" type="Afm2EdiFactSenderType" minOccurs="0" />
         <xs:element name="AmazonS3Sender" type="AmazonS3SenderType" minOccurs="0" />
         <xs:element name="BisJmsSender" type="BisJmsSenderType" minOccurs="0" />
-        <xs:element name="CmisHttpSender" type="CmisHttpSenderType" minOccurs="0" />
-        <xs:element name="CmisSender" type="CmisSenderType" minOccurs="0" />
         <xs:element name="CommandSender" type="CommandSenderType" minOccurs="0" />
         <xs:element name="DelaySender" type="DelaySenderType" minOccurs="0" />
         <xs:element name="DirectQuerySender" type="DirectQuerySenderType" minOccurs="0" />
@@ -46819,12 +46184,12 @@
     <xs:attribute name="jndiProperties" type="xs:string" />
     <xs:attribute name="lockRows" type="xs:string">
       <xs:annotation>
-        <xs:documentation>when set &lt;code&gt;true&lt;/code&gt;, exclusive row-level locks are obtained on all the rows identified by the select statement (by appending ' for update nowait skip locked' to the end of the query) (default: false)</xs:documentation>
+        <xs:documentation>When set &lt;code&gt;true&lt;/code&gt;, exclusive row-level locks are obtained on all the rows identified by the select statement (e.g. by appending ' FOR UPDATE NOWAIT SKIP LOCKED' to the end of the query) (default: false)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="lockWait" type="xs:string">
       <xs:annotation>
-        <xs:documentation>when set and &gt;=0, ' for update wait #' is used instead of ' for update nowait skip locked' (default: -1)</xs:documentation>
+        <xs:documentation>when set and &gt;=0, ' FOR UPDATE WAIT #' is used instead of ' FOR UPDATE NOWAIT SKIP LOCKED' (default: -1)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="maxRows" type="xs:string">
@@ -47044,12 +46409,12 @@
     <xs:attribute name="jndiProperties" type="xs:string" />
     <xs:attribute name="lockRows" type="xs:string">
       <xs:annotation>
-        <xs:documentation>when set &lt;code&gt;true&lt;/code&gt;, exclusive row-level locks are obtained on all the rows identified by the select statement (by appending ' for update nowait skip locked' to the end of the query) (default: false)</xs:documentation>
+        <xs:documentation>When set &lt;code&gt;true&lt;/code&gt;, exclusive row-level locks are obtained on all the rows identified by the select statement (e.g. by appending ' FOR UPDATE NOWAIT SKIP LOCKED' to the end of the query) (default: false)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="lockWait" type="xs:string">
       <xs:annotation>
-        <xs:documentation>when set and &gt;=0, ' for update wait #' is used instead of ' for update nowait skip locked' (default: -1)</xs:documentation>
+        <xs:documentation>when set and &gt;=0, ' FOR UPDATE WAIT #' is used instead of ' FOR UPDATE NOWAIT SKIP LOCKED' (default: -1)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="maxRows" type="xs:string">
@@ -47275,12 +46640,22 @@
     </xs:attribute>
     <xs:attribute name="sessionKey" type="xs:string">
       <xs:annotation>
-        <xs:documentation>Name of the key in the &lt;code&gt;PipeLineSession&lt;/code&gt; to retrieve the input message from, if a serviceSelectionStylesheetFilename or a xpathExpression is specified. If no serviceSelectionStylesheetFilename or xpathExpression is specified, the value of the session variable is used as the name of the forward. If none of sessionKey, serviceSelectionStylesheetFilename or xpathExpression are specified, the element name of the root node of the input message is taken as the name of forward.</xs:documentation>
+        <xs:documentation>Name of the key in the &lt;code&gt;PipeLineSession&lt;/code&gt; to retrieve the input message from, if a styleSheetName or a xpathExpression is specified. If no styleSheetName or xpathExpression is specified, the value of the session variable is used as the name of the forward. If none of sessionKey, styleSheetName or xpathExpression are specified, the element name of the root node of the input message is taken as the name of forward.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="storeForwardInSessionKey" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Selected forward name will be stored in the specified session key.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="storeResultInSessionKey" type="xs:string">
       <xs:annotation>
         <xs:documentation>If set, the result (before replacing when &lt;code&gt;true&lt;/code&gt;) is stored under this session key</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="styleSheetName" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>stylesheet may return a string representing the forward to look up (default: &lt;i&gt;a stylesheet that returns the name of the root-element&lt;/i&gt;)</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="transactionAttribute" type="xs:string">
@@ -48223,8 +47598,6 @@
         <xs:element name="Afm2EdiFactSender" type="Afm2EdiFactSenderType" minOccurs="0" />
         <xs:element name="AmazonS3Sender" type="AmazonS3SenderType" minOccurs="0" />
         <xs:element name="BisJmsSender" type="BisJmsSenderType" minOccurs="0" />
-        <xs:element name="CmisHttpSender" type="CmisHttpSenderType" minOccurs="0" />
-        <xs:element name="CmisSender" type="CmisSenderType" minOccurs="0" />
         <xs:element name="CommandSender" type="CommandSenderType" minOccurs="0" />
         <xs:element name="DelaySender" type="DelaySenderType" minOccurs="0" />
         <xs:element name="DirectQuerySender" type="DirectQuerySenderType" minOccurs="0" />

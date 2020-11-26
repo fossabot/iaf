@@ -29,7 +29,6 @@ import nl.nn.adapterframework.core.IMessageBrowser;
 import nl.nn.adapterframework.core.IProvidesMessageBrowsers;
 import nl.nn.adapterframework.core.IPullingListener;
 import nl.nn.adapterframework.core.ListenerException;
-import nl.nn.adapterframework.core.PipeLineExit;
 import nl.nn.adapterframework.core.PipeLineResult;
 import nl.nn.adapterframework.core.PipeLineSessionBase;
 import nl.nn.adapterframework.doc.IbisDoc;
@@ -216,7 +215,7 @@ public abstract class FileSystemListener<F, FS extends IBasicFileSystem<F>> impl
 				if (StringUtils.isNotEmpty(getLogFolder())) {
 					FileSystemUtils.copyFile(fileSystem, rawMessage, getLogFolder(), isOverwrite(), getNumberOfBackups(), isCreateFolders());
 				}
-				if (!PipeLineExit.EXIT_STATE_SUCCESS.equals(processResult.getState())) {
+				if (!processResult.isSuccessful()) {
 					if (StringUtils.isNotEmpty(getErrorFolder())) {
 						FileSystemUtils.moveFile(fileSystem, rawMessage, getErrorFolder(), isOverwrite(), getNumberOfBackups(), isCreateFolders());
 						return;
@@ -287,6 +286,14 @@ public abstract class FileSystemListener<F, FS extends IBasicFileSystem<F>> impl
 	}
 
 	@Override
+	public IMessageBrowser<F> getInProcessBrowser() {
+		if (StringUtils.isEmpty(getInProcessFolder())) {
+			return null;
+		}
+		return new FileSystemMessageBrowser<F, FS>(fileSystem, getInProcessFolder());
+	}
+
+	@Override
 	public IMessageBrowser<F> getMessageLogBrowser() {
 		if (StringUtils.isEmpty(getProcessedFolder())) {
 			return null;
@@ -306,7 +313,7 @@ public abstract class FileSystemListener<F, FS extends IBasicFileSystem<F>> impl
 
 
 	@Override
-	@IbisDoc({"1", "name of the listener", ""})
+	@IbisDoc({"1", "Name of the listener", ""})
 	public void setName(String name) {
 		this.name = name;
 	}
@@ -321,7 +328,7 @@ public abstract class FileSystemListener<F, FS extends IBasicFileSystem<F>> impl
 		setInputFolder(inputDirectory);
 	}
 
-	@IbisDoc({"1", "Folder that is scanned for files. If not set, the root is scanned", ""})
+	@IbisDoc({"2", "Folder that is scanned for files. If not set, the root is scanned", ""})
 	public void setInputFolder(String inputFolder) {
 		this.inputFolder = inputFolder;
 	}
@@ -336,7 +343,7 @@ public abstract class FileSystemListener<F, FS extends IBasicFileSystem<F>> impl
 		setInProcessFolder(outputDirectory);
 	}
 
-	@IbisDoc({"2", "Folder where files are stored <i>while</i> being processed", ""})
+	@IbisDoc({"3", "Folder where files are stored <i>while</i> being processed", ""})
 	public void setInProcessFolder(String inProcessFolder) {
 		this.inProcessFolder = inProcessFolder;
 	}
@@ -350,7 +357,7 @@ public abstract class FileSystemListener<F, FS extends IBasicFileSystem<F>> impl
 		setProcessedFolder(processedDirectory);
 	}
 
-	@IbisDoc({"3", "Folder where files are stored <i>after</i> being processed", ""})
+	@IbisDoc({"4", "Folder where files are stored <i>after</i> being processed", ""})
 	public void setProcessedFolder(String processedFolder) {
 		this.processedFolder = processedFolder;
 	}
@@ -358,7 +365,7 @@ public abstract class FileSystemListener<F, FS extends IBasicFileSystem<F>> impl
 		return processedFolder;
 	}
 
-	@IbisDoc({"4", "Folder where files are stored <i>after</i> being processed, in case the exit-state was not equal to <code>success</code>", ""})
+	@IbisDoc({"5", "Folder where files are stored <i>after</i> being processed, in case the exit-state was not equal to <code>success</code>", ""})
 	public void setErrorFolder(String errorFolder) {
 		this.errorFolder = errorFolder;
 	}
@@ -366,7 +373,7 @@ public abstract class FileSystemListener<F, FS extends IBasicFileSystem<F>> impl
 		return errorFolder;
 	}
 
-	@IbisDoc({"5", "Folder where a copy of every files that is received is stored", ""})
+	@IbisDoc({"6", "Folder where a copy of every file that is received is stored", ""})
 	public void setLogFolder(String logFolder) {
 		this.logFolder = logFolder;
 	}
@@ -374,7 +381,7 @@ public abstract class FileSystemListener<F, FS extends IBasicFileSystem<F>> impl
 		return logFolder;
 	}
 
-	@IbisDoc({"6", "If set to <code>true</code>, the folders to look for files and to move files to when being processed and after being processed are created if they are specified and do not exist", "false"})
+	@IbisDoc({"7", "If set to <code>true</code>, the folders to look for files and to move files to when being processed and after being processed are created if they are specified and do not exist", "false"})
 	public void setCreateFolders(boolean createFolders) {
 		this.createFolders = createFolders;
 	}
@@ -388,7 +395,7 @@ public abstract class FileSystemListener<F, FS extends IBasicFileSystem<F>> impl
 		setCreateFolders(createInputDirectory);
 	}
 
-	@IbisDoc({"7", "If set <code>true</code>, the file processed will deleted after being processed, and not stored", "false"})
+	@IbisDoc({"8", "If set <code>true</code>, the file processed will be deleted after being processed, and not stored", "false"})
 	public void setDelete(boolean b) {
 		delete = b;
 	}
@@ -414,7 +421,7 @@ public abstract class FileSystemListener<F, FS extends IBasicFileSystem<F>> impl
 //	}
 
 	
-	@IbisDoc({"8", "Number of copies held of a file with the same name. Backup files have a dot and a number suffixed to their name. If set to 0, no backups will be kept.", "0"})
+	@IbisDoc({"9", "Number of copies held of a file with the same name. Backup files have a dot and a number suffixed to their name. If set to 0, no backups will be kept.", "0"})
 	public void setNumberOfBackups(int i) {
 		numberOfBackups = i;
 	}
@@ -422,7 +429,7 @@ public abstract class FileSystemListener<F, FS extends IBasicFileSystem<F>> impl
 		return numberOfBackups;
 	}
 
-	@IbisDoc({"8", "If set <code>true</code>, the destination file will be deleted if it already exists", "false"})
+	@IbisDoc({"10", "If set <code>true</code>, the destination file will be deleted if it already exists", "false"})
 	public void setOverwrite(boolean overwrite) {
 		this.overwrite = overwrite;
 	}
@@ -431,15 +438,7 @@ public abstract class FileSystemListener<F, FS extends IBasicFileSystem<F>> impl
 	}
 
 
-	@IbisDoc({"9", "If <code>true</code>, the file modification time is used in addition to the filename to determine if a file has been seen before", "false"})
-	public void setFileTimeSensitive(boolean b) {
-		fileTimeSensitive = b;
-	}
-	public boolean isFileTimeSensitive() {
-		return fileTimeSensitive;
-	}
-
-	@IbisDoc({"10", "Determines the contents of the message that is sent to the pipeline. Can be 'name', for the filename, 'path', for the full file path, 'contents' for the contents of the file. For any other value, the attributes of the file are searched and used", "path"})
+	@IbisDoc({"11", "Determines the contents of the message that is sent to the pipeline. Can be 'name', for the filename, 'path', for the full file path, 'contents' for the contents of the file. For any other value, the attributes of the file are searched and used", "path"})
 	public void setMessageType(String messageType) {
 		this.messageType = messageType;
 	}
@@ -448,7 +447,16 @@ public abstract class FileSystemListener<F, FS extends IBasicFileSystem<F>> impl
 	}
 
 
-	@IbisDoc({"11", "Minimal age of file in milliseconds, to avoid receiving a file while it is still being written", "1000 [ms]"})
+	@IbisDoc({"12", "If <code>true</code>, the file modification time is used in addition to the filename to determine if a file has been seen before", "false"})
+	public void setFileTimeSensitive(boolean b) {
+		fileTimeSensitive = b;
+	}
+	public boolean isFileTimeSensitive() {
+		return fileTimeSensitive;
+	}
+
+
+	@IbisDoc({"13", "Minimal age of file in milliseconds, to avoid receiving a file while it is still being written", "1000 [ms]"})
 	public void setMinStableTime(long minStableTime) {
 		this.minStableTime = minStableTime;
 	}

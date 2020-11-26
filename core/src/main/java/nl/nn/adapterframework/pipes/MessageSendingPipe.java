@@ -1,5 +1,5 @@
 /*
-   Copyright 2013, 2015-2020 Nationale-Nederlanden
+   Copyright 2013, 2015-2019 Nationale-Nederlanden, 2020 WeAreFrank!
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -220,7 +220,6 @@ public class MessageSendingPipe extends StreamingPipe implements HasSender, HasS
 	
 	private boolean timeoutPending=false;
 
-	private boolean checkMessageLog = AppConstants.getInstance(getConfigurationClassLoader()).getBoolean("messageLog.check", false);
 	private boolean isConfigurationStubbed = ConfigurationUtils.isConfigurationStubbed(getConfigurationClassLoader());
 	private boolean msgLogHumanReadable = AppConstants.getInstance(getConfigurationClassLoader()).getBoolean("msg.log.humanReadable", false);
 
@@ -245,17 +244,6 @@ public class MessageSendingPipe extends StreamingPipe implements HasSender, HasS
 	public void setName(String name) {
 		super.setName(name);
 		propagateName();
-	}
-
-	@Override
-	public void addParameter(Parameter p){
-		if (getSender() instanceof ISenderWithParameters && getParameterList()!=null) {
-			if (p.getName().equals(STUBFILENAME)) {
-				super.addParameter(p);
-			} else {
-				((ISenderWithParameters)getSender()).addParameter(p);
-			}
-		}
 	}
 
 	/**
@@ -285,7 +273,18 @@ public class MessageSendingPipe extends StreamingPipe implements HasSender, HasS
 			if (getSender() == null) {
 				throw new ConfigurationException(getLogPrefix(null) + "no sender defined ");
 			}
-	
+			
+			// copying of pipe parameters to sender must be done at configure(), not by overriding addParam()
+			// because sender might not have been set when addPipe() is called.
+			if (getParameterList()!=null && getSender() instanceof ISenderWithParameters) {
+				for (Parameter p:getParameterList()) {
+					if (!p.getName().equals(STUBFILENAME)) {
+						((ISenderWithParameters)getSender()).addParameter(p);
+					}
+				}
+				
+			}
+
 			try {
 				if (getSender() instanceof ConfigurationAware) {
 					IAdapter adapter=getAdapter();
@@ -297,9 +296,9 @@ public class MessageSendingPipe extends StreamingPipe implements HasSender, HasS
 				}
 				//In order to suppress 'XmlQuerySender is used one or more times' config warnings
 				if(sender instanceof DirectQuerySender) {
-					String dynamicallyGeneratedKey = "warnings.suppress.sqlInjections."+getAdapter().getName();
-					boolean suppressSqlWarning = AppConstants.getInstance().getBoolean(dynamicallyGeneratedKey, false);
-					((DirectQuerySender) getSender()).configure(suppressSqlWarning);
+					String msg = "has a ["+ClassUtils.nameOf(DirectQuerySender.class)+"] in adapter ["+getAdapter().getName()+"]. This may cause potential SQL injections!";
+					ConfigurationWarnings.add(this, log, msg, ConfigurationWarnings.SQL_INJECTION_SUPPRESS_KEY, getAdapter());
+					((DirectQuerySender) getSender()).configure(true);
 				} else {
 					getSender().configure();
 				}
@@ -362,14 +361,24 @@ public class MessageSendingPipe extends StreamingPipe implements HasSender, HasS
 			}
 		}
 		ITransactionalStorage messageLog = getMessageLog();
-		if (checkMessageLog) {
-			if (!getSender().isSynchronous() && getListener()==null && !(getSender() instanceof nl.nn.adapterframework.senders.IbisLocalSender)) {
-				if (messageLog==null) {
-					ConfigurationWarnings.add(this, log, "asynchronous sender [" + getSender().getName() + "] without sibling listener has no messageLog. Integrity check not possible");
+		if (messageLog==null) {
+			if (!getSender().isSynchronous() && getListener()==null && !(getSender() instanceof nl.nn.adapterframework.senders.IbisLocalSender)) { // sender is asynchronous and not a local sender, but has no messageLog
+				boolean suppressIntegrityCheckWarning = ConfigurationWarnings.isSuppressed("warnings.suppress.integrityCheck", getAdapter(), getConfigurationClassLoader());
+				if (!suppressIntegrityCheckWarning) {
+					boolean legacyCheckMessageLog = AppConstants.getInstance(getConfigurationClassLoader()).getBoolean("messageLog.check", true);
+					if (!legacyCheckMessageLog) {
+						ConfigurationWarnings.add(this, log, "Suppressing integrityCheck warnings by setting property 'messageLog.check=false' has been replaced by by setting property 'warnings.suppress.integrityCheck=true'");
+						suppressIntegrityCheckWarning=true;
+					}
+				}
+				if (!suppressIntegrityCheckWarning) {
+					ConfigurationWarnings.add(this, log, "asynchronous sender [" + getSender().getName() + "] without sibling listener has no messageLog. " + 
+						"Service Managers will not be able to perform an integrity check (matching messages received by the adapter to messages sent by this pipe). " + 
+						"This warning can be suppressed globally by setting property 'warnings.suppress.integrityCheck=true', "+
+						"or for this adapter only by setting property 'warnings.suppress.integrityCheck."+getAdapter().getName()+"=true'");
 				}
 			}
-		}
-		if (messageLog!=null) {
+		} else {
 			if (StringUtils.isNotEmpty(getHideRegex()) && StringUtils.isEmpty(messageLog.getHideRegex())) {
 				messageLog.setHideRegex(getHideRegex());
 				messageLog.setHideMethod(getHideMethod());

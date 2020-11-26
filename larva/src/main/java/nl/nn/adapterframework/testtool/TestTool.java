@@ -109,6 +109,11 @@ public class TestTool {
 	private static Writer silentOut = null;
 	private static boolean autoSaveDiffs = false;
 	
+	/*
+	 * if allowReadlineSteps is set to true, actual results can be compared in line by using .readline steps.
+	 * Those results cannot be saved to the inline expected value, however.
+	 */
+	private static final boolean allowReadlineSteps = false; 
 	private static int globalTimeout=DEFAULT_TIMEOUT;
 
 	public static void setTimeout(int newTimeout) {
@@ -1165,7 +1170,7 @@ public class TestTool {
 			Enumeration<?> enumeration = properties.propertyNames();
 			while (enumeration.hasMoreElements()) {
 				String key = (String)enumeration.nextElement();
-				if (key.startsWith("step" + i + ".") && (key.endsWith(".read") || key.endsWith(".write"))) {
+				if (key.startsWith("step" + i + ".") && (key.endsWith(".read") || key.endsWith(".write") || (allowReadlineSteps && key.endsWith(".readline")) || key.endsWith(".writeline"))) {
 					if (!stepFound) {
 						steps.add(key);
 						stepFound = true;
@@ -1412,7 +1417,7 @@ public class TestTool {
 					if (preDelete != null) {
 						FixedQuerySender deleteQuerySender = (FixedQuerySender)ibisContext.createBeanAutowireByName(FixedQuerySender.class);
 						deleteQuerySender.setName("Test Tool pre delete query sender");
-						deleteQuerySender.setDatasourceName(appConstants.getResolvedProperty("jndiContextPrefix") + datasourceName);
+						deleteQuerySender.setDatasourceName(datasourceName);
 						deleteQuerySender.setQueryType("delete");
 						deleteQuerySender.setQuery("delete from " + preDelete);
 						try {
@@ -1443,7 +1448,7 @@ public class TestTool {
 					if (prePostQuery != null) {
 						FixedQuerySender prePostFixedQuerySender = (FixedQuerySender)ibisContext.createBeanAutowireByName(FixedQuerySender.class);
 						prePostFixedQuerySender.setName("Test Tool query sender");
-						prePostFixedQuerySender.setDatasourceName(appConstants.getResolvedProperty("jndiContextPrefix") + datasourceName);
+						prePostFixedQuerySender.setDatasourceName(datasourceName);
 						//prePostFixedQuerySender.setUsername(username);
 						//prePostFixedQuerySender.setPassword(password);
 						prePostFixedQuerySender.setQueryType("select");
@@ -1488,7 +1493,7 @@ public class TestTool {
 					if (readQuery != null) {
 						FixedQuerySender readQueryFixedQuerySender = (FixedQuerySender)ibisContext.createBeanAutowireByName(FixedQuerySender.class);
 						readQueryFixedQuerySender.setName("Test Tool query sender");
-						readQueryFixedQuerySender.setDatasourceName(appConstants.getResolvedProperty("jndiContextPrefix") + datasourceName);
+						readQueryFixedQuerySender.setDatasourceName(datasourceName);
 						//readQueryFixedQuerySender.setUsername(username);
 						//readQueryFixedQuerySender.setPassword(password);
 						
@@ -2857,14 +2862,22 @@ public class TestTool {
 		if ("".equals(fileName)) {
 			errorMessage("No file specified for step '" + step + "'", writers);
 		} else {
-			debugMessage("Read file " + fileName, writers);
-			fileContent = readFile(fileNameAbsolutePath, writers);
+			if (step.endsWith("readline") || step.endsWith("writeline")) {
+				fileContent = fileName;
+			} else {
+				if (fileName.endsWith("ignore")) {
+					debugMessage("creating dummy expected file for filename '"+fileName+"'", writers);
+					fileContent = "ignore";
+				} else {
+					debugMessage("Read file " + fileName, writers);
+					fileContent = readFile(fileNameAbsolutePath, writers);
+				}
+			}
 			if (fileContent == null) {
 				errorMessage("Could not read file '" + fileName + "'", writers);
 			} else {
-				if (step.endsWith(".read")) {
-					queueName = step.substring(i + 1, step.length() - 5);
-
+				queueName = step.substring(i + 1, step.lastIndexOf("."));
+				if (step.endsWith(".read") || (allowReadlineSteps && step.endsWith(".readline"))) {
 					if ("nl.nn.adapterframework.jms.JmsListener".equals(properties.get(queueName + ".className"))) {
 						stepPassed = executeJmsListenerRead(step, stepDisplayName, properties, queues, writers, queueName, fileName, fileContent);	
 					} else 	if ("nl.nn.adapterframework.jdbc.FixedQuerySender".equals(properties.get(queueName + ".className"))) {
@@ -2891,8 +2904,6 @@ public class TestTool {
 						errorMessage("Property '" + queueName + ".className' not found or not valid", writers);
 					}
 				} else {
-					queueName = step.substring(i + 1, step.length() - 6);
-
 					String resolveProperties = properties.getProperty("scenario.resolveProperties");
 
 					if( resolveProperties == null || !resolveProperties.equalsIgnoreCase("false") ){
@@ -3072,6 +3083,10 @@ public class TestTool {
 	}
 
 	public static int compareResult(String step, String stepDisplayName, String fileName, String expectedResult, String actualResult, Properties properties, Map<String, Object> writers, String queueName) {
+		if (fileName.endsWith("ignore")) {
+			debugMessage("ignoring compare for filename '"+fileName+"'", writers);
+			return RESULT_OK;
+		}
 		int ok = RESULT_ERROR;
 		String printableExpectedResult = XmlUtils.replaceNonValidXmlCharacters(expectedResult);
 		String printableActualResult = XmlUtils.replaceNonValidXmlCharacters(actualResult);

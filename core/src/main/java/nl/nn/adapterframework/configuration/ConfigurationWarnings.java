@@ -1,5 +1,5 @@
 /*
-   Copyright 2013, 2016-2020 Nationale-Nederlanden
+   Copyright 2013, 2016-2019 Nationale-Nederlanden, 2020 WeAreFrank!
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -16,9 +16,13 @@
 package nl.nn.adapterframework.configuration;
 
 
-import nl.nn.adapterframework.core.INamedObject;
-import nl.nn.adapterframework.util.ClassUtils;
 import org.apache.logging.log4j.Logger;
+
+import nl.nn.adapterframework.core.IAdapter;
+import nl.nn.adapterframework.core.IConfigurable;
+import nl.nn.adapterframework.core.INamedObject;
+import nl.nn.adapterframework.util.AppConstants;
+import nl.nn.adapterframework.util.ClassUtils;
 
 
 /**
@@ -29,6 +33,9 @@ import org.apache.logging.log4j.Logger;
 public final class ConfigurationWarnings extends BaseConfigurationWarnings {
 	private static ConfigurationWarnings self = null;
 	private Configuration activeConfiguration = null;
+	public static final String SQL_INJECTION_SUPPRESS_KEY = "warnings.suppress.sqlInjections";
+	public static final String DEPRECATION_SUPPRESS_KEY="warnings.suppress.deprecated";
+	public static final String DEFAULT_VALUE_SUPPRESS_KEY = "warnings.suppress.defaultvalue";
 
 	/**
 	 * Add configuration independent warning
@@ -49,6 +56,15 @@ public final class ConfigurationWarnings extends BaseConfigurationWarnings {
 	 */
 	public static void add(INamedObject object, Logger log, String message) {
 		add(object, log, message, null);
+	}
+
+	/**
+	 * Adds configuration warning in case warning is not suppressed
+	 */
+	public static void add(IConfigurable object, Logger log, String message, String suppressionKey, IAdapter adapter) {
+		if(!isSuppressed(suppressionKey, adapter, object.getConfigurationClassLoader())) {
+			add(object, log, message, null);
+		}
 	}
 
 	/**
@@ -73,7 +89,6 @@ public final class ConfigurationWarnings extends BaseConfigurationWarnings {
 			addConfigurationIndependentWarning(log, msg, t, (t==null));
 		}
 	}
-
 
 	@Override
 	protected boolean add(Logger log, String msg, Throwable t, boolean onlyOnce) {
@@ -115,5 +130,11 @@ public final class ConfigurationWarnings extends BaseConfigurationWarnings {
 
 	public void setActiveConfiguration (Configuration configuration) {
 		activeConfiguration = configuration;
+	}
+	
+	public static boolean isSuppressed(String key, IAdapter adapter, ClassLoader cl) {
+		AppConstants appConstants = AppConstants.getInstance(cl);
+		return appConstants.getBoolean(key, false) // warning is suppressed globally, for all adapters
+				|| adapter!=null && appConstants.getBoolean(key+"."+adapter.getName(), false); // or warning is suppressed for this adapter only.
 	}
 }

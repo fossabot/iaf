@@ -4,8 +4,8 @@
  *
  */
 angular.module('iaf.beheerconsole')
-.controller('MainCtrl', ['$scope', '$rootScope', 'appConstants', 'Api', 'Hooks', '$state', '$location', 'Poller', 'Notification', 'dateFilter', '$interval', 'Idle', '$http', 'Misc', '$uibModal', 'Session', 'Debug', 'SweetAlert', '$timeout', 'gTag',
-	function($scope, $rootScope, appConstants, Api, Hooks, $state, $location, Poller, Notification, dateFilter, $interval, Idle, $http, Misc, $uibModal, Session, Debug, SweetAlert, $timeout, gTag) {
+.controller('MainCtrl', ['$scope', '$rootScope', 'appConstants', 'Api', 'Hooks', '$state', '$location', 'Poller', 'Notification', 'dateFilter', '$interval', 'Idle', '$http', 'Misc', '$uibModal', 'Session', 'Debug', 'SweetAlert', '$timeout',
+	function($scope, $rootScope, appConstants, Api, Hooks, $state, $location, Poller, Notification, dateFilter, $interval, Idle, $http, Misc, $uibModal, Session, Debug, SweetAlert, $timeout) {
 	$scope.loading = true;
 	$rootScope.adapters = {};
 	function initializeFrankConsole () {
@@ -24,7 +24,6 @@ angular.module('iaf.beheerconsole')
 				var serverTime = Date.parse(new Date(data.serverTime).toUTCString());
 				var localTime  = Date.parse(new Date().toUTCString());
 				appConstants.timeOffset = serverTime - localTime;
-				//setTime(appConstants.timeOffset);
 
 				function updateTime() {
 					var serverDate = new Date();
@@ -162,7 +161,6 @@ angular.module('iaf.beheerconsole')
 		}).catch(function(error) {
 			Debug.error("An error occured while comparing IAF versions", error);
 		});
-		gTag.event('application.version', appConstants["application.version"]);
 
 		Poller.add("server/warnings", function(configurations) {
 			$scope.alerts = []; //Clear all old alerts
@@ -467,11 +465,53 @@ angular.module('iaf.beheerconsole')
 	$scope.checkState();
 }])
 
-.controller('InformationCtrl', ['$scope', '$uibModalInstance', 'Api', function($scope, $uibModalInstance, Api) {
+.controller('InformationCtrl', ['$scope', '$uibModalInstance', '$uibModal', 'Api', '$timeout', function($scope, $uibModalInstance, $uibModal, Api, $timeout) {
 	Api.Get("server/info", function(data) {
 		$.extend( $scope, data );
 	});
 	$scope.close = function () {
+		$uibModalInstance.close();
+	};
+
+	$scope.openCookieModel = function () {
+		$uibModalInstance.close(); //close the current model
+
+		$timeout(function() {
+			$uibModal.open({
+				templateUrl: 'views/common/cookieModal.html',
+				size: 'lg',
+				backdrop: 'static',
+				controller: 'CookieModalCtrl',
+			});
+		});
+	}
+}])
+
+.controller('CookieModalCtrl', ['$scope', 'GDPR', 'appConstants', '$rootScope', '$uibModalInstance', function($scope, GDPR, appConstants, $rootScope, $uibModalInstance) {
+	$scope.cookies = GDPR.defaults;
+
+	$rootScope.$on('appConstants', function() {
+		$scope.cookies = {
+				necessary: true,
+				personalization: appConstants.getBoolean("console.cookies.personalization", true),
+				functional: appConstants.getBoolean("console.cookies.functional", true)
+		};
+	});
+
+	$scope.consentAllCookies = function() {
+		$scope.savePreferences({
+			necessary: true,
+			personalization: true,
+			functional: true
+		});
+	};
+
+	$scope.close = function() {
+		$uibModalInstance.close();
+	}
+
+	$scope.savePreferences = function(cookies) {
+		GDPR.setSettings(cookies);
 		$uibModalInstance.close();
 	};
 }])
@@ -1648,7 +1688,7 @@ angular.module('iaf.beheerconsole')
 }])
 
 .controller('WebservicesCtrl', ['$scope', 'Api', 'Misc', function($scope, Api, Misc) {
-	$scope.rootURL = Misc.getServerPath() + 'rest/';
+	$scope.rootURL = Misc.getServerPath();
 	Api.Get("webservices", function(data) {
 		$.extend($scope, data);
 	});
@@ -1697,7 +1737,7 @@ angular.module('iaf.beheerconsole')
 		Api.Put("schedules", {action: "start"});
 	};
 
-	$scope.pause = function() {
+	$scope.pauseScheduler = function() {
 		Api.Put("schedules", {action: "pause"});
 	};
 
@@ -2284,6 +2324,11 @@ angular.module('iaf.beheerconsole')
 			$scope.addNote(warnLevel, returnData.state);
 			$scope.result = (returnData.result);
 			$scope.processingMessage = false;
+			if($scope.file != null) {
+				angular.element(".form-file")[0].value = null;
+				$scope.file = null;
+				formData.message = returnData.message;
+			}
 		}, function(returnData) {
 			$scope.result = "";
 			$scope.processingMessage = false;
