@@ -439,9 +439,9 @@ angular.module('iaf.beheerconsole')
 
 	var cooldown = function(data) {
 		$scope.cooldownCounter = 60;
-		if(data.status == "INTERNAL_SERVER_ERROR") {
+		if(data.status == "error" || data.status == "INTERNAL_SERVER_ERROR") {
 			$rootScope.startupError = data.error;
-			$scope.stackTrace = data.stacktrace;
+			$scope.stackTrace = data.stackTrace;
 
 			var interval = $interval(function() {
 				$scope.cooldownCounter--;
@@ -952,6 +952,10 @@ angular.module('iaf.beheerconsole')
 					activate_config:true,
 					automatic_reload:false,
 			};
+			if($scope.file != null) {
+				angular.element(".form-file")[0].value = null;
+				$scope.file = null;
+			}
 		}, function(errorData, status, errorMsg) {
 			var error = (errorData) ? errorData.error : errorMsg;
 			$scope.error = error;
@@ -1993,7 +1997,7 @@ angular.module('iaf.beheerconsole')
 	}
 }])
 
-.controller('IBISstoreSummaryCtrl', ['$scope', 'Api', function($scope, Api) {
+.controller('IBISstoreSummaryCtrl', ['$scope', 'Api', '$location', function($scope, Api, $location) {
 	$scope.datasources = {};
 
 	Api.Get("jdbc", function(data) {
@@ -2001,12 +2005,12 @@ angular.module('iaf.beheerconsole')
 		$scope.form = {datasource: data.datasources[0]};
 	});
 
-	$scope.submit = function(formData) {
-		if(!formData) formData = {};
-
-		if(!formData.datasource) formData.datasource = $scope.datasources[0] || false;
-
-		Api.Post("jdbc/summary", JSON.stringify(formData), function(data) {
+	if($location.search() && $location.search().datasource != null) {
+		var datasource = $location.search().datasource;
+		fetch(datasource);
+	}
+	function fetch(datasource) {
+		Api.Post("jdbc/summary", JSON.stringify({datasource: datasource}), function(data) {
 			$scope.error = "";
 			$.extend($scope, data);
 		}, function(errorData, status, errorMsg) {
@@ -2014,9 +2018,18 @@ angular.module('iaf.beheerconsole')
 			$scope.error = error;
 			$scope.result = "";
 		}, false);
+	}
+
+	$scope.submit = function(formData) {
+		if(!formData) formData = {};
+
+		if(!formData.datasource) formData.datasource = $scope.datasources[0] || false;
+		$location.search('datasource', formData.datasource);
+		fetch(formData.datasource);
 	};
 
 	$scope.reset = function() {
+		$location.search('datasource', null);
 		$scope.result = "";
 		$scope.error = "";
 	};

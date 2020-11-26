@@ -25,10 +25,10 @@ import org.apache.commons.lang3.StringUtils;
 import nl.nn.adapterframework.configuration.ConfigurationException;
 import nl.nn.adapterframework.core.HasPhysicalDestination;
 import nl.nn.adapterframework.core.IPipeLineSession;
-import nl.nn.adapterframework.core.IReceiver;
 import nl.nn.adapterframework.core.ListenerException;
 import nl.nn.adapterframework.doc.IbisDoc;
 import nl.nn.adapterframework.http.PushingListenerAdapter;
+import nl.nn.adapterframework.receivers.Receiver;
 import nl.nn.adapterframework.receivers.ReceiverAware;
 import nl.nn.adapterframework.util.AppConstants;
 
@@ -37,10 +37,11 @@ import nl.nn.adapterframework.util.AppConstants;
  * @author Niels Meijer
  *
  */
-public class ApiListener extends PushingListenerAdapter<String> implements HasPhysicalDestination, ReceiverAware<String> {
+public class ApiListener extends PushingListenerAdapter implements HasPhysicalDestination, ReceiverAware<String> {
 
 	private String uriPattern;
 	private boolean updateEtag = true;
+	private String operationId;
 
 	private String method;
 	private List<String> methods = Arrays.asList("GET", "PUT", "POST", "DELETE");
@@ -53,7 +54,7 @@ public class ApiListener extends PushingListenerAdapter<String> implements HasPh
 	private ContentType producedContentType;
 	private String multipartBodyName = null;
 
-	private IReceiver<String> receiver;
+	private Receiver<String> receiver;
 
 	private ClassLoader configurationClassLoader = Thread.currentThread().getContextClassLoader();
 	private String messageIdHeader = AppConstants.getInstance(configurationClassLoader).getString("apiListener.messageIdHeader", "Message-Id");
@@ -111,7 +112,7 @@ public class ApiListener extends PushingListenerAdapter<String> implements HasPh
 
 	@Override
 	public String getPhysicalDestinationName() {
-		String destinationName = "uriPattern: "+getCleanPattern()+"; method: "+getMethod();
+		String destinationName = "uriPattern: "+getUriPattern()+"; method: "+getMethod();
 		if(!MediaTypes.ANY.equals(consumes))
 			destinationName += "; consumes: "+getConsumesEnum().name();
 		if(!MediaTypes.ANY.equals(produces))
@@ -128,12 +129,6 @@ public class ApiListener extends PushingListenerAdapter<String> implements HasPh
 		String pattern = getUriPattern();
 		if(StringUtils.isEmpty(pattern))
 			return null;
-
-		if(pattern.startsWith("/"))
-			pattern = pattern.substring(1);
-
-		if(pattern.endsWith("/"))
-			pattern = pattern.substring(0, pattern.length()-1);
 
 		return pattern.replaceAll("\\{.*?}", "*");
 	}
@@ -166,6 +161,12 @@ public class ApiListener extends PushingListenerAdapter<String> implements HasPh
 
 	@IbisDoc({"2", "uri pattern to register this listener on, eq. `/my-listener/{something}/here`", ""})
 	public void setUriPattern(String uriPattern) {
+		if(!uriPattern.startsWith("/"))
+			uriPattern = "/" + uriPattern;
+
+		if(uriPattern.endsWith("/"))
+			uriPattern = uriPattern.substring(0, uriPattern.length()-1);
+
 		this.uriPattern = uriPattern;
 	}
 	public String getUriPattern() {
@@ -271,9 +272,16 @@ public class ApiListener extends PushingListenerAdapter<String> implements HasPh
 	public void setMessageIdHeader(String messageIdHeader) {
 		this.messageIdHeader = messageIdHeader;
 	}
-
 	public String getMessageIdHeader() {
 		return messageIdHeader;
+	}
+
+	@IbisDoc({"11", "Unique string used to identify the operation. The id MUST be unique among all operations described in the OpenApi schema", ""})
+	public void setOperationId(String operationId) {
+		this.operationId = operationId;
+	}
+	public String getOperationId() {
+		return operationId;
 	}
 
 	@Override
@@ -289,12 +297,12 @@ public class ApiListener extends PushingListenerAdapter<String> implements HasPh
 	}
 
 	@Override
-	public void setReceiver(IReceiver<String> receiver) {
+	public void setReceiver(Receiver<String> receiver) {
 		this.receiver = receiver;
 	}
 
 	@Override
-	public IReceiver<String> getReceiver() {
+	public Receiver<String> getReceiver() {
 		return receiver;
 	}
 }

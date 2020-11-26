@@ -37,7 +37,7 @@ import nl.nn.adapterframework.pipes.JsonPipe;
 import nl.nn.adapterframework.stream.Message;
 
 /**
- * Implementation of a {@link nl.nn.adapterframework.core.IPushingListener IPushingListener} that enables a {@link nl.nn.adapterframework.receivers.GenericReceiver}
+ * Implementation of a {@link nl.nn.adapterframework.core.IPushingListener IPushingListener} that enables a {@link nl.nn.adapterframework.receivers.Receiver}
  * to receive REST messages.
  *
  * Note:
@@ -47,7 +47,7 @@ import nl.nn.adapterframework.stream.Message;
  * @author  Niels Meijer
  * @author  Gerrit van Brakel
  */
-public class RestListener extends PushingListenerAdapter<String> implements HasPhysicalDestination, HasSpecialDefaultValues {
+public class RestListener extends PushingListenerAdapter implements HasPhysicalDestination, HasSpecialDefaultValues {
 
 	private String uriPattern;
 	private String method;

@@ -19,12 +19,15 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.nio.file.DirectoryStream;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.NotImplementedException;
@@ -72,9 +75,11 @@ import nl.nn.adapterframework.configuration.ConfigurationException;
 import nl.nn.adapterframework.configuration.ConfigurationWarning;
 import nl.nn.adapterframework.doc.IbisDoc;
 import nl.nn.adapterframework.receivers.ExchangeMailListener;
+import nl.nn.adapterframework.stream.Message;
 import nl.nn.adapterframework.util.CredentialFactory;
 import nl.nn.adapterframework.util.LogUtil;
 import nl.nn.adapterframework.util.StreamUtil;
+import nl.nn.adapterframework.xml.SaxElementBuilder;
 
 /**
  * Implementation of a {@link IBasicFileSystem} of an Exchange Mail Inbox.
@@ -95,7 +100,7 @@ import nl.nn.adapterframework.util.StreamUtil;
  * @author Gerrit van Brakel
  *
  */
-public class ExchangeFileSystem implements IWithAttachments<Item,Attachment> {
+public class ExchangeFileSystem implements IMailFileSystem<EmailMessage,Attachment> {
 	protected Logger log = LogUtil.getLogger(this);
 
 	private String mailAddress;
@@ -109,6 +114,7 @@ public class ExchangeFileSystem implements IWithAttachments<Item,Attachment> {
 	private String filter;
 	private boolean readMimeContents=false;
 	private int maxNumberOfMessagesToList=10;
+	private String replyAddressFields = REPLY_ADDRESS_FIELDS_DEFAULT;
 
 	private String proxyHost = null;
 	private int proxyPort = 8080;
@@ -263,18 +269,18 @@ public class ExchangeFileSystem implements IWithAttachments<Item,Attachment> {
 	
 	
 	@Override
-	public Item toFile(String filename) throws FileSystemException {
+	public EmailMessage toFile(String filename) throws FileSystemException {
 		try {
 			ItemId itemId = ItemId.getItemIdFromString(filename);
-			Item item = Item.bind(exchangeService,itemId);
+			EmailMessage item = EmailMessage.bind(exchangeService,itemId);
 			return item;
 		} catch (Exception e) {
-			throw new FileSystemException("Cannot convert filename ["+filename+"] into an ItemId");
+			throw new FileSystemException("Cannot convert filename ["+filename+"] into an ItemId", e);
 		}
 	}
 
 	@Override
-	public Item toFile(String folder, String filename) throws FileSystemException {
+	public EmailMessage toFile(String folder, String filename) throws FileSystemException {
 		throw new NotImplementedException("Cannot make item for ["+filename+"] file in Exchange folder ["+folder+"]");
 	}
 
@@ -292,7 +298,7 @@ public class ExchangeFileSystem implements IWithAttachments<Item,Attachment> {
 	}
 
 	@Override
-	public boolean exists(Item f) throws FileSystemException {
+	public boolean exists(EmailMessage f) throws FileSystemException {
 		try {
 			EmailMessage emailMessage = EmailMessage.bind(exchangeService, f.getId());
 			return itemExistsInFolder(emailMessage.getParentFolderId(), f.getId().toString());
@@ -310,7 +316,7 @@ public class ExchangeFileSystem implements IWithAttachments<Item,Attachment> {
 
 
 	@Override
-	public Iterator<Item> listFiles(String folder) throws FileSystemException {
+	public DirectoryStream<EmailMessage> listFiles(String folder) throws FileSystemException {
 		try {
 			FolderId folderId = findFolder(basefolderId,folder);
 			ItemView view = new ItemView(getMaxNumberOfMessagesToList());
@@ -323,9 +329,23 @@ public class ExchangeFileSystem implements IWithAttachments<Item,Attachment> {
 				findResults = exchangeService.findItems(folderId, view);
 			}
 			if (findResults.getTotalCount() == 0) {
-				return null;
+				return FileSystemUtils.getDirectoryStream(null);
 			} else {
-				return findResults.getItems().iterator();
+				Iterator<Item> itemIterator = findResults.getItems().iterator();
+				return FileSystemUtils.getDirectoryStream(new Iterator<EmailMessage>() {
+
+					@Override
+					public boolean hasNext() {
+						return itemIterator.hasNext();
+					}
+
+					@Override
+					public EmailMessage next() {
+						// must cast <Items> to <EmailMessage> separately, cannot cast Iterator<Item> to Iterator<EmailMessage> 
+						return (EmailMessage)itemIterator.next();
+					}
+					
+				});
 			}
 		} catch (Exception e) {
 			throw new FileSystemException("Cannot list messages in folder ["+folder+"]", e);
@@ -346,7 +366,7 @@ public class ExchangeFileSystem implements IWithAttachments<Item,Attachment> {
 
 	
 	@Override
-	public InputStream readFile(Item f) throws FileSystemException, IOException {
+	public InputStream readFile(EmailMessage f) throws FileSystemException, IOException {
 		EmailMessage emailMessage;
 		PropertySet ps = new PropertySet(EmailMessageSchema.Subject);
 //		ps = new PropertySet(EmailMessageSchema.DateTimeReceived,
@@ -372,7 +392,7 @@ public class ExchangeFileSystem implements IWithAttachments<Item,Attachment> {
 	}
 	
 	@Override
-	public void deleteFile(Item f) throws FileSystemException {
+	public void deleteFile(EmailMessage f) throws FileSystemException {
 		 try {
 			f.delete(DeleteMode.MoveToDeletedItems);
 		} catch (Exception e) {
@@ -380,29 +400,27 @@ public class ExchangeFileSystem implements IWithAttachments<Item,Attachment> {
 		}
 	}
 	@Override
-	public Item moveFile(Item f, String destinationFolder, boolean createFolder) throws FileSystemException {
+	public EmailMessage moveFile(EmailMessage f, String destinationFolder, boolean createFolder) throws FileSystemException {
 		try {
-			EmailMessage emailMessage = EmailMessage.bind(exchangeService, f.getId());
-			emailMessage = (EmailMessage) emailMessage.move(getFolderIdByFolderName(destinationFolder));
-			return emailMessage;
+			FolderId destinationFolderId = getFolderIdByFolderName(destinationFolder, createFolder);
+			return (EmailMessage)f.move(destinationFolderId);
 		} catch (Exception e) {
 			throw new FileSystemException(e);
 		}
 	}
 
 	@Override
-	public Item copyFile(Item f, String destinationFolder, boolean createFolder) throws FileSystemException {
+	public EmailMessage copyFile(EmailMessage f, String destinationFolder, boolean createFolder) throws FileSystemException {
 		try {
-			EmailMessage emailMessage = EmailMessage.bind(exchangeService, f.getId());
-			emailMessage = (EmailMessage) emailMessage.copy(getFolderIdByFolderName(destinationFolder));
-			return emailMessage;
+			FolderId destinationFolderId = getFolderIdByFolderName(destinationFolder, createFolder);
+			return (EmailMessage)f.copy(destinationFolderId);
 		} catch (Exception e) {
 			throw new FileSystemException(e);
 		}
 	}
 
 	@Override
-	public long getFileSize(Item f) throws FileSystemException {
+	public long getFileSize(EmailMessage f) throws FileSystemException {
 		try {
 			return f.getSize();
 		} catch (ServiceLocalException e) {
@@ -410,7 +428,7 @@ public class ExchangeFileSystem implements IWithAttachments<Item,Attachment> {
 		}
 	}
 	@Override
-	public String getName(Item f) {
+	public String getName(EmailMessage f) {
 		try {
 			return f.getId().toString();
 		} catch (ServiceLocalException e) {
@@ -418,7 +436,7 @@ public class ExchangeFileSystem implements IWithAttachments<Item,Attachment> {
 		}
 	}
 	@Override
-	public String getCanonicalName(Item f) throws FileSystemException {
+	public String getCanonicalName(EmailMessage f) throws FileSystemException {
 		try {
 			return f.getId().getUniqueId();
 		} catch (ServiceLocalException e) {
@@ -426,7 +444,7 @@ public class ExchangeFileSystem implements IWithAttachments<Item,Attachment> {
 		}
 	}
 	@Override
-	public Date getModificationTime(Item f) throws FileSystemException {
+	public Date getModificationTime(EmailMessage f) throws FileSystemException {
 		try {
 			return f.getLastModifiedTime();
 		} catch (ServiceLocalException e) {
@@ -434,42 +452,50 @@ public class ExchangeFileSystem implements IWithAttachments<Item,Attachment> {
 		}
 	}
 	
-	private List<String> makeListOfAdresses(EmailAddressCollection addresses) {
-		List<String> adressList = new LinkedList<String>();
-		for (EmailAddress emailAddress : addresses) {
-			adressList.add(emailAddress.getAddress());
-		}	
-		return adressList;
+	private List<String> asList(EmailAddressCollection addressCollection) {
+		if (addressCollection==null) {
+			return Collections.emptyList();
+		}
+		return addressCollection.getItems().stream().map(EmailAddress::getAddress).collect(Collectors.toList());
 	}
 	
+	
 	@Override
-	public Map<String, Object> getAdditionalFileProperties(Item f) throws FileSystemException {
+	public Map<String, Object> getAdditionalFileProperties(EmailMessage f) throws FileSystemException {
 		EmailMessage emailMessage;
-//		PropertySet ps = new PropertySet(EmailMessageSchema.DateTimeReceived,
-//				EmailMessageSchema.From, EmailMessageSchema.Subject,
-//				EmailMessageSchema.Body,
-//				EmailMessageSchema.DateTimeSent);
-		PropertySet ps=PropertySet.FirstClassProperties;
 		try {
-			emailMessage = EmailMessage.bind(exchangeService, f.getId(), ps);
-			Map<String, Object> result=new LinkedHashMap<String,Object>();
-			result.put("mailId", emailMessage.getInternetMessageId());
-			result.put("toRecipients", makeListOfAdresses(emailMessage.getToRecipients()));
-			result.put("ccRecipients", makeListOfAdresses(emailMessage.getCcRecipients()));
-			result.put("bccRecipients", makeListOfAdresses(emailMessage.getBccRecipients()));
-			result.put("from", emailMessage.getFrom().getAddress());
-			result.put("subject", emailMessage.getSubject());
-			result.put("dateTimeSent", emailMessage.getDateTimeSent());
-			result.put("dateTimeReceived", emailMessage.getDateTimeReceived());
-			Map<String,String> headers = new LinkedHashMap<String,String>();
-			for(InternetMessageHeader internetMessageHeader : emailMessage.getInternetMessageHeaders()) {
-				headers.put(internetMessageHeader.getName(), internetMessageHeader.getValue());
+			if (f.getId()!=null) {
+				PropertySet ps=PropertySet.FirstClassProperties;
+				emailMessage = EmailMessage.bind(exchangeService, f.getId(), ps);
+			} else {
+				emailMessage = f;
 			}
-			result.put("headers", headers);
-			
-//			for (Entry<PropertyDefinition, Object> entry:emailMessage.getPropertyBag().getProperties().entrySet()) {
-//				result.put(entry.getKey().getName(), entry.getValue());
-//			}
+			Map<String, Object> result=new LinkedHashMap<String,Object>();
+			result.put(IMailFileSystem.TO_RECEPIENTS_KEY, asList(emailMessage.getToRecipients()));
+			result.put(IMailFileSystem.CC_RECEPIENTS_KEY, asList(emailMessage.getCcRecipients()));
+			result.put(IMailFileSystem.BCC_RECEPIENTS_KEY, asList(emailMessage.getBccRecipients()));
+			result.put(IMailFileSystem.FROM_ADDRESS_KEY, emailMessage.getFrom().getAddress()); 
+			result.put(IMailFileSystem.SENDER_ADDRESS_KEY, getSender(emailMessage)); 
+			result.put(IMailFileSystem.REPLY_TO_RECEPIENTS_KEY, getReplyTo(emailMessage)); 
+			result.put(IMailFileSystem.DATETIME_SENT_KEY, emailMessage.getDateTimeSent()); 
+			result.put(IMailFileSystem.DATETIME_RECEIVED_KEY, emailMessage.getDateTimeReceived()); 
+			for(InternetMessageHeader internetMessageHeader : emailMessage.getInternetMessageHeaders()) {
+				Object curEntry = result.get(internetMessageHeader.getName());
+				if (curEntry==null) {
+					result.put(internetMessageHeader.getName(), internetMessageHeader.getValue());
+					continue;
+				}
+				List<Object> values;
+				if (curEntry instanceof List) {
+					values = (List<Object>)curEntry;
+				} else {
+					values = new LinkedList<Object>();
+					values.add(curEntry);
+					result.put(internetMessageHeader.getName(),values);
+				}
+				values.add(internetMessageHeader.getValue());
+			}
+			result.put(IMailFileSystem.BEST_REPLY_ADDRESS_KEY, MailFileSystemUtils.findBestReplyAddress(result,getReplyAddressFields()));
 			return result;
 		} catch (Exception e) {
 			throw new FileSystemException(e);
@@ -477,14 +503,17 @@ public class ExchangeFileSystem implements IWithAttachments<Item,Attachment> {
 	}
 
 	@Override
-	public Iterator<Attachment> listAttachments(Item f) throws FileSystemException {
+	public Iterator<Attachment> listAttachments(EmailMessage f) throws FileSystemException {
 		List<Attachment> result=new LinkedList<Attachment>();
 		try {
 			EmailMessage emailMessage;
-			PropertySet ps = new PropertySet(EmailMessageSchema.Attachments);
-			emailMessage = EmailMessage.bind(exchangeService, f.getId(), ps);
+			if (f.getId()!=null) {
+				PropertySet ps = new PropertySet(EmailMessageSchema.Attachments);
+				emailMessage = EmailMessage.bind(exchangeService, f.getId(), ps);
+			} else {
+				emailMessage = f;
+			}
 			AttachmentCollection attachmentCollection = emailMessage.getAttachments();
-			emailMessage = EmailMessage.bind(exchangeService, f.getId(), ps);
 			for (Attachment attachment : attachmentCollection) {
 				result.add(attachment);
 			}
@@ -503,7 +532,7 @@ public class ExchangeFileSystem implements IWithAttachments<Item,Attachment> {
 	}
 
 	@Override
-	public FileAttachment getAttachmentByName(Item f, String name) throws FileSystemException {
+	public FileAttachment getAttachmentByName(EmailMessage f, String name) throws FileSystemException {
 		try {
 			EmailMessage emailMessage;
 			PropertySet ps = new PropertySet(EmailMessageSchema.Attachments);
@@ -539,7 +568,7 @@ public class ExchangeFileSystem implements IWithAttachments<Item,Attachment> {
 		}
 		if (a instanceof ItemAttachment) {
 			ItemAttachment itemAttachment=(ItemAttachment)a;
-			Item attachmentItem = itemAttachment.getItem();
+			EmailMessage attachmentItem = (EmailMessage)itemAttachment.getItem();
 			return readFile(attachmentItem);
 		}
 		if (content==null) {
@@ -548,6 +577,18 @@ public class ExchangeFileSystem implements IWithAttachments<Item,Attachment> {
 		}
 		InputStream binaryInputStream = new ByteArrayInputStream(content);
 		return binaryInputStream;
+	}
+
+	@Override
+	public EmailMessage getFileFromAttachment(Attachment attachment) throws FileSystemException {
+		if (attachment instanceof ItemAttachment) {
+			Item item = ((ItemAttachment) attachment).getItem();
+			if (item instanceof EmailMessage) {
+				return (EmailMessage) item;
+			}
+		}
+		// Attachment is not an EmailMessage itself, no need to parse further, can just return null
+		return null;
 	}
 
 
@@ -586,9 +627,18 @@ public class ExchangeFileSystem implements IWithAttachments<Item,Attachment> {
 
 	
 	
-	public FolderId getFolderIdByFolderName(String folderName) throws Exception{
+	public FolderId getFolderIdByFolderName(String folderName, boolean create) throws Exception{
 		FindFoldersResults findResults;
 		findResults = exchangeService.findFolders(basefolderId, new SearchFilter.IsEqualTo(FolderSchema.DisplayName, folderName), new FolderView(Integer.MAX_VALUE));
+		if (create && findResults.getTotalCount()==0) {
+			log.debug("creating folder [" + folderName + "]");
+			createFolder(folderName);
+			findResults = exchangeService.findFolders(basefolderId, new SearchFilter.IsEqualTo(FolderSchema.DisplayName, folderName), new FolderView(Integer.MAX_VALUE));
+		}
+		if (findResults.getTotalCount()==0) {
+			log.debug("folder [" + folderName + "] not found");
+			return null;
+		}
 		if (log.isDebugEnabled()) {
 			log.debug("amount of folders with name: " + folderName + " = " + findResults.getTotalCount());
 			log.debug("found folder with name: " + findResults.getFolders().get(0).getDisplayName());
@@ -612,7 +662,7 @@ public class ExchangeFileSystem implements IWithAttachments<Item,Attachment> {
 	@Override
 	public void removeFolder(String folderName) throws FileSystemException {
 		try {
-			FolderId folderId = getFolderIdByFolderName(folderName);
+			FolderId folderId = getFolderIdByFolderName(folderName, false);
 			Folder folder = Folder.bind(exchangeService, folderId);
 			folder.delete(DeleteMode.HardDelete);
 		} catch (Exception e) {
@@ -620,7 +670,90 @@ public class ExchangeFileSystem implements IWithAttachments<Item,Attachment> {
 		}
 	}
 
+	
+	public String getSender(EmailMessage emailMessage) throws FileSystemException {
+		try {
+			EmailAddress sender = emailMessage.getSender();
+			return sender==null ? null : sender.getAddress();
+		} catch (ServiceLocalException e) {
+			log.warn("Could not get Sender Address: "+ e.getMessage());
+			return null;
+		}
+	}
 
+	public List<String> getReplyTo(EmailMessage emailMessage) throws FileSystemException {
+		try {
+			EmailAddressCollection replyTo = emailMessage.getReplyTo();
+			if (replyTo==null) {
+				return null;
+			}
+			List<String> result = new LinkedList<>();
+			for (EmailAddress address: replyTo) {
+				result.add(address.getAddress());
+			}
+			return result;
+		} catch (ServiceLocalException e) {
+			throw new FileSystemException("Could not get ReplyTo Addresses", e);
+		}
+	}
+	
+	@Override
+	public String getSubject(EmailMessage emailMessage) throws FileSystemException {
+		try {
+			return emailMessage.getSubject();
+		} catch (ServiceLocalException e) {
+			throw new FileSystemException("Could not get Subject", e);
+		}
+	}
+	
+
+	@Override
+	public String getMessageBody(EmailMessage emailMessage) throws FileSystemException {
+		try {
+			return MessageBody.getStringFromMessageBody(emailMessage.getBody());
+		} catch (Exception e) {
+			throw new FileSystemException("Could not get MessageBody", e);
+		}
+		
+	}
+
+	@Override
+	public Message getMimeContent(EmailMessage emailMessage) throws FileSystemException {
+		try {
+			emailMessage.load(new PropertySet(ItemSchema.MimeContent));
+			MimeContent mc = emailMessage.getMimeContent();
+			return new Message(mc.getContent());
+		} catch (Exception e) {
+			throw new FileSystemException("Could not get MimeContent", e);
+		}
+		
+	}
+	
+	@Override
+	public void extractEmail(EmailMessage emailMessage, SaxElementBuilder emailXml) throws FileSystemException {
+		try {
+			if (emailMessage.getId()!=null) {
+				PropertySet ps = new PropertySet(EmailMessageSchema.DateTimeSent, EmailMessageSchema.DateTimeReceived, EmailMessageSchema.From, 
+						EmailMessageSchema.ToRecipients, EmailMessageSchema.CcRecipients, EmailMessageSchema.BccRecipients, EmailMessageSchema.Subject, 
+						EmailMessageSchema.Body, EmailMessageSchema.Attachments);
+				emailMessage.load(ps);
+			}
+			MailFileSystemUtils.addEmailInfo(this, emailMessage, emailXml);
+		} catch (Exception e) {
+			throw new FileSystemException(e);
+		}
+	}
+
+	@Override
+	public void extractAttachment(Attachment attachment, SaxElementBuilder attachmentsXml) throws FileSystemException {
+		try {
+			attachment.load();
+			MailFileSystemUtils.addAttachmentInfo(this, attachment, attachmentsXml);
+		} catch (Exception e) {
+			throw new FileSystemException(e);
+		}
+	}
+	
 
 
 	@Override
@@ -712,22 +845,32 @@ public class ExchangeFileSystem implements IWithAttachments<Item,Attachment> {
 		return filter;
 	}
 
-	public boolean isReadMimeContents() {
-		return readMimeContents;
+	@IbisDoc({"10", "Comma separated list of fields to try as response address", REPLY_ADDRESS_FIELDS_DEFAULT})
+	public void setReplyAddressFields(String replyAddressFields) {
+		this.replyAddressFields = replyAddressFields;
 	}
+	@Override
+	public String getReplyAddressFields() {
+		return replyAddressFields;
+	}
+
+	@IbisDoc({"11", "if set <code>true</code>, the contents will be read in MIME format", "false"})
 	public void setReadMimeContents(boolean readMimeContents) {
 		this.readMimeContents = readMimeContents;
 	}
-
-
-	public int getMaxNumberOfMessagesToList() {
-		return maxNumberOfMessagesToList;
+	public boolean isReadMimeContents() {
+		return readMimeContents;
 	}
+
+	@IbisDoc({"12", "the maximum number of messages to be retrieved from a folder", "10"})
 	public void setMaxNumberOfMessagesToList(int maxNumberOfMessagesToList) {
 		this.maxNumberOfMessagesToList = maxNumberOfMessagesToList;
 	}
+	public int getMaxNumberOfMessagesToList() {
+		return maxNumberOfMessagesToList;
+	}
 
-	@IbisDoc({"10", "proxy host", ""})
+	@IbisDoc({"13", "proxy host", ""})
 	public void setProxyHost(String proxyHost) {
 		this.proxyHost = proxyHost;
 	}
@@ -735,7 +878,7 @@ public class ExchangeFileSystem implements IWithAttachments<Item,Attachment> {
 		return proxyHost;
 	}
 
-	@IbisDoc({"11", "proxy port", ""})
+	@IbisDoc({"14", "proxy port", ""})
 	public void setProxyPort(int proxyPort) {
 		this.proxyPort = proxyPort;
 	}
@@ -743,7 +886,7 @@ public class ExchangeFileSystem implements IWithAttachments<Item,Attachment> {
 		return proxyPort;
 	}
 
-	@IbisDoc({"12", "proxy username", ""})
+	@IbisDoc({"15", "proxy username", ""})
 	public void setProxyUsername(String proxyUsername) {
 		this.proxyUsername = proxyUsername;
 	}
@@ -751,7 +894,7 @@ public class ExchangeFileSystem implements IWithAttachments<Item,Attachment> {
 		return proxyUsername;
 	}
 
-	@IbisDoc({"13", "proxy password", ""})
+	@IbisDoc({"16", "proxy password", ""})
 	public void setProxyPassword(String proxyPassword) {
 		this.proxyPassword = proxyPassword;
 	}
@@ -759,7 +902,7 @@ public class ExchangeFileSystem implements IWithAttachments<Item,Attachment> {
 		return proxyPassword;
 	}
 
-	@IbisDoc({"14", "proxy authAlias", ""})
+	@IbisDoc({"17", "proxy authAlias", ""})
 	public void setProxyAuthAlias(String proxyAuthAlias) {
 		this.proxyAuthAlias = proxyAuthAlias;
 	}
@@ -767,7 +910,7 @@ public class ExchangeFileSystem implements IWithAttachments<Item,Attachment> {
 		return proxyAuthAlias;
 	}
 
-	@IbisDoc({"15", "proxy domain", ""})
+	@IbisDoc({"18", "proxy domain", ""})
 	public void setProxyDomain(String proxyDomain) {
 		this.proxyDomain = proxyDomain;
 	}

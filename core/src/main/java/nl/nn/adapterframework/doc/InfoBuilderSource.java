@@ -101,7 +101,7 @@ class InfoBuilderSource {
 	}
 	static Map<String, Integer> sortWeightPipeline = new HashMap<String, Integer>();
 	static {
-		sortWeightPipeline.put("registerCache", 100);
+		sortWeightPipeline.put("setCache", 100);
 		sortWeightPipeline.put("setLocker", 90);
 		sortWeightPipeline.put("setInputValidator", 80);
 		sortWeightPipeline.put("setInputWrapper", 70);
@@ -112,7 +112,7 @@ class InfoBuilderSource {
 	}
 	static Map<String, Integer> sortWeight = new HashMap<String, Integer>();
 	static {
-		sortWeight.put("registerCache", 100);
+		sortWeight.put("setCache", 100);
 		sortWeight.put("setLocker", 90);
 		sortWeight.put("setInputWrapper", 80);
 		sortWeight.put("setInputValidator", 70);
@@ -178,7 +178,7 @@ class InfoBuilderSource {
 			TreeSet<IbisBean> otherIbisBeans = new TreeSet<IbisBean>();
 			otherIbisBeans.add(new IbisBean("Configuration", getClass("nl.nn.adapterframework.configuration.Configuration")));
 			otherIbisBeans.add(new IbisBean("Adapter", getClass("nl.nn.adapterframework.core.Adapter")));
-			otherIbisBeans.add(new IbisBean("Receiver", getClass("nl.nn.adapterframework.receivers.GenericReceiver")));
+			otherIbisBeans.add(new IbisBean("Receiver", getClass("nl.nn.adapterframework.receivers.Receiver")));
 			otherIbisBeans.add(new IbisBean("Pipeline", getClass("nl.nn.adapterframework.core.PipeLine")));
 			otherIbisBeans.add(new IbisBean("Forward", getClass("nl.nn.adapterframework.core.PipeForward")));
 			otherIbisBeans.add(new IbisBean("Exit", getClass("nl.nn.adapterframework.core.PipeLineExit")));

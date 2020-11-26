@@ -1,5 +1,5 @@
 /*
-   Copyright 2013, 2016, 2018, 2019 Nationale-Nederlanden
+   Copyright 2013, 2016, 2018, 2019 Nationale-Nederlanden, 2020 WeAreFrank!
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -15,9 +15,6 @@
 */
 package nl.nn.adapterframework.configuration;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.io.StringReader;
 import java.net.URL;
 import java.util.ArrayList;
@@ -85,6 +82,7 @@ import nl.nn.adapterframework.xml.SaxException;
  */
 public class ConfigurationDigester {
 	private final Logger log = LogUtil.getLogger(ConfigurationDigester.class);
+	private final Logger configLogger = LogUtil.getLogger("CONFIG");
 	private ConfigurationWarnings configWarnings = ConfigurationWarnings.getInstance();
 
 	private static final String CONFIGURATION_VALIDATION_KEY = "configurations.validate";
@@ -93,22 +91,25 @@ public class ConfigurationDigester {
 	private static final String attributesGetter_xslt = "/xml/xsl/AttributesGetter.xsl";
 
 	private String digesterRulesFile = FrankDigesterRules.DIGESTER_RULES_FILE;
-	private boolean configLogAppend = false;
 
 	String lastResolvedEntity = null;
 
 	private class XmlErrorHandler implements ErrorHandler  {
+		private Configuration configuration;
+		public XmlErrorHandler(Configuration configuration) {
+			this.configuration = configuration;
+		}
 		@Override
 		public void warning(SAXParseException exception) throws SAXParseException {
-			ConfigurationWarnings.add(log, "Warning when validating against schema ["+CONFIGURATION_VALIDATION_SCHEMA+"] at line,column ["+exception.getLineNumber()+","+exception.getColumnNumber()+"]: " + exception.getMessage());
+			ConfigurationWarnings.add(configuration, log, "Warning when validating against schema ["+CONFIGURATION_VALIDATION_SCHEMA+"] at line,column ["+exception.getLineNumber()+","+exception.getColumnNumber()+"]: " + exception.getMessage());
 		}
 		@Override
 		public void error(SAXParseException exception) throws SAXParseException {
-			ConfigurationWarnings.add(log, "Error when validating against schema ["+CONFIGURATION_VALIDATION_SCHEMA+"] at line,column ["+exception.getLineNumber()+","+exception.getColumnNumber()+"]: " + exception.getMessage());
+			ConfigurationWarnings.add(configuration, log, "Error when validating against schema ["+CONFIGURATION_VALIDATION_SCHEMA+"] at line,column ["+exception.getLineNumber()+","+exception.getColumnNumber()+"]: " + exception.getMessage());
 		}
 		@Override
 		public void fatalError(SAXParseException exception) throws SAXParseException {
-			ConfigurationWarnings.add(log, "FatalError when validating against schema ["+CONFIGURATION_VALIDATION_SCHEMA+"] at line,column ["+exception.getLineNumber()+","+exception.getColumnNumber()+"]: " + exception.getMessage());
+			ConfigurationWarnings.add(configuration, log, "FatalError when validating against schema ["+CONFIGURATION_VALIDATION_SCHEMA+"] at line,column ["+exception.getLineNumber()+","+exception.getColumnNumber()+"]: " + exception.getMessage());
 		}
 	}
 
@@ -150,7 +151,7 @@ public class ConfigurationDigester {
 				throw new ConfigurationException("cannot get URL from ["+CONFIGURATION_VALIDATION_SCHEMA+"]");
 			}
 			digester.setProperty("http://java.sun.com/xml/jaxp/properties/schemaSource", xsdUrl.toExternalForm());
-			XmlErrorHandler xeh = new XmlErrorHandler();
+			XmlErrorHandler xeh = new XmlErrorHandler(configuration);
 			digester.setErrorHandler(xeh);
 		}
 
@@ -158,11 +159,6 @@ public class ConfigurationDigester {
 	}
 
 	public void digestConfiguration(ClassLoader classLoader, Configuration configuration) throws ConfigurationException {
-		digestConfiguration(classLoader, configuration, configLogAppend);
-		configLogAppend = true;
-	}
-
-	public void digestConfiguration(ClassLoader classLoader, Configuration configuration, boolean configLogAppend) throws ConfigurationException {
 		String configurationFile = ConfigurationUtils.getConfigurationFile(classLoader, configuration.getName());
 		Digester digester = null;
 		try {
@@ -172,7 +168,7 @@ public class ConfigurationDigester {
 			if (configurationResource == null) {
 				throw new ConfigurationException("Configuration file not found: " + configurationFile);
 			}
-			if (log.isDebugEnabled()) log.debug("digesting configuration ["+configuration.getName()+"] configurationFile ["+configurationFile+"] configLogAppend ["+configLogAppend+"]");
+			if (log.isDebugEnabled()) log.debug("digesting configuration ["+configuration.getName()+"] configurationFile ["+configurationFile+"]");
 
 			String original = XmlUtils.identityTransform(configurationResource);
 			fillConfigWarnDefaultValueExceptions(XmlUtils.stringToSource(original)); // must use 'original', cannot use configurationResource, because EntityResolver will not be properly set
@@ -193,7 +189,7 @@ public class ConfigurationDigester {
 				loadedHide = ConfigurationUtils.getStubbedConfiguration(configuration, loadedHide);
 			}
 			configuration.setLoadedConfiguration(loadedHide);
-			saveConfig(loadedHide, configLogAppend);
+			configLogger.info(loadedHide);
 			digester.parse(new StringReader(loaded));
 		} catch (Throwable t) {
 			// wrap exception to be sure it gets rendered via the IbisException-renderer
@@ -210,17 +206,6 @@ public class ConfigurationDigester {
 		}
 	}
 
-	private void saveConfig(String config, boolean append) {
-		String directoryName = AppConstants.getInstance().getResolvedProperty("log.dir");
-		String fileName = AppConstants.getInstance().getResolvedProperty("instance.name.lc")+"-config.xml";
-		File file = new File(directoryName, fileName);
-		try (FileWriter fileWriter = new FileWriter(file, append)) {
-			fileWriter.write(config);
-		} catch (IOException e) {
-			log.warn("Could not write configuration to file ["+file.getPath()+"]",e);
-		}
-	}
-	
 	private  void fillConfigWarnDefaultValueExceptions(Source configurationSource) throws Exception {
 		URL xsltSource = ClassUtils.getResourceURL(this.getClass().getClassLoader(), attributesGetter_xslt);
 		if (xsltSource == null) {

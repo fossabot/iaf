@@ -85,6 +85,7 @@
 	<bean id="mbeanServer" class="org.springframework.jmx.support.MBeanServerFactoryBean">
 		<property name="locateExistingServerIfPossible" value="true" /><!-- indicate to first look for a server -->
 		<property name="defaultDomain" value="${instance.name}" />
+		<property name="agentId" value="" /> <!-- an empty string forces the PlatformMbeanServer to be used -->
 	</bean>
 
 	<bean id="namingStrategy" class="nl.nn.adapterframework.jmx.JmxNamingStrategy">
@@ -98,7 +99,7 @@
 		<property name="assembler">
 			<bean class="nl.nn.adapterframework.jmx.JmxMBeanInfoAssembler" />
 		</property>
-		<property name="registrationBehaviorName" value="REGISTRATION_REPLACE_EXISTING"/>
+		<property name="registrationPolicy" value="REPLACE_EXISTING"/>
 	</bean>
 
 	<bean
@@ -332,7 +333,7 @@
 
 	<bean
 		name="proto-receiver"
-		class="nl.nn.adapterframework.receivers.GenericReceiver"
+		class="nl.nn.adapterframework.receivers.Receiver"
 		autowire="byName"
 		scope="prototype"
 	/>

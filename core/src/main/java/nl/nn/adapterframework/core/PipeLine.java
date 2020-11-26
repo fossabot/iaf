@@ -17,7 +17,6 @@ package nl.nn.adapterframework.core;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +29,7 @@ import nl.nn.adapterframework.cache.ICacheAdapter;
 import nl.nn.adapterframework.cache.ICacheEnabled;
 import nl.nn.adapterframework.configuration.ConfigurationException;
 import nl.nn.adapterframework.configuration.ConfigurationWarnings;
+import nl.nn.adapterframework.configuration.SuppressKeys;
 import nl.nn.adapterframework.doc.IbisDoc;
 import nl.nn.adapterframework.extensions.esb.EsbSoapWrapperPipe;
 import nl.nn.adapterframework.jms.JmsException;
@@ -37,7 +37,7 @@ import nl.nn.adapterframework.pipes.AbstractPipe;
 import nl.nn.adapterframework.pipes.FixedForwardPipe;
 import nl.nn.adapterframework.pipes.MessageSendingPipe;
 import nl.nn.adapterframework.processors.PipeLineProcessor;
-import nl.nn.adapterframework.receivers.ReceiverBase;
+import nl.nn.adapterframework.receivers.Receiver;
 import nl.nn.adapterframework.statistics.HasStatistics;
 import nl.nn.adapterframework.statistics.SizeStatisticsKeeper;
 import nl.nn.adapterframework.statistics.StatisticsKeeper;
@@ -128,10 +128,10 @@ public class PipeLine implements ICacheEnabled<String,String>, HasStatistics {
 	public final static String INPUT_WRAPPER_NAME    = "- pipeline inputWrapper";
 	public final static String OUTPUT_WRAPPER_NAME   = "- pipeline outputWrapper";
 
-	private IPipe inputValidator  = null;
-	private IPipe outputValidator = null;
-	private IPipe inputWrapper    = null;
-	private IPipe outputWrapper   = null;
+	private IValidatorPipe inputValidator  = null;
+	private IValidatorPipe outputValidator = null;
+	private IWrapperPipe inputWrapper    = null;
+	private IWrapperPipe outputWrapper   = null;
 
 	private TransactionDefinition txDef = null;
 
@@ -220,9 +220,9 @@ public class PipeLine implements ICacheEnabled<String,String>, HasStatistics {
 	 */
 	public void configure() throws ConfigurationException {
 		INamedObject owner = getOwner();
-		IAdapter adapter = null;
-		if (owner instanceof IAdapter) {
-			adapter = (IAdapter)owner;
+		Adapter adapter = null;
+		if (owner instanceof Adapter) {
+			adapter = (Adapter)owner;
 		}
 		if (cache != null) {
 			cache.configure(owner.getName() + "-Pipeline");
@@ -275,8 +275,8 @@ public class PipeLine implements ICacheEnabled<String,String>, HasStatistics {
 			throw new ConfigurationException("no pipe found for firstPipe [" + firstPipe + "]");
 		}
 
-		IPipe inputValidator = getInputValidator();
-		IPipe outputValidator = getOutputValidator();
+		IValidatorPipe inputValidator = getInputValidator();
+		IValidatorPipe outputValidator = getOutputValidator();
 		if (inputValidator!=null && outputValidator==null && inputValidator instanceof IDualModeValidator) {
 			outputValidator=((IDualModeValidator)inputValidator).getResponseValidator();
 			setOutputValidator(outputValidator);
@@ -310,26 +310,21 @@ public class PipeLine implements ICacheEnabled<String,String>, HasStatistics {
 			log.debug(getLogPrefix()+"configuring OutputWrapper");
 			PipeForward pf = new PipeForward();
 			pf.setName("success");
-			if (getOutputWrapper() instanceof AbstractPipe && adapter instanceof Adapter) {
-				((AbstractPipe) getOutputWrapper()).setRecoverAdapter(((Adapter) adapter).isRecover());
+			if (getOutputWrapper() instanceof AbstractPipe) {
+				((AbstractPipe) getOutputWrapper()).setRecoverAdapter(adapter.isRecover());
 			}
 			getOutputWrapper().registerForward(pf);
 			getOutputWrapper().setName(OUTPUT_WRAPPER_NAME);
 			if (getOutputWrapper() instanceof EsbSoapWrapperPipe) {
 				EsbSoapWrapperPipe eswPipe = (EsbSoapWrapperPipe)getOutputWrapper();
-				Iterator<IReceiver> recIt = adapter.getReceiverIterator();
-				while (recIt.hasNext()) {
-					IReceiver receiver = recIt.next();
-					if (receiver instanceof ReceiverBase ) {
-						ReceiverBase rb = (ReceiverBase) receiver;
-						IListener listener = rb.getListener();
-						try {
-							if (eswPipe.retrievePhysicalDestinationFromListener(listener)) {
-								break;
-							}
-						} catch (JmsException e) {
-							throw new ConfigurationException(e);
+				for (Receiver receiver: adapter.getReceivers()) {
+					IListener listener = receiver.getListener();
+					try {
+						if (eswPipe.retrievePhysicalDestinationFromListener(listener)) {
+							break;
 						}
+					} catch (JmsException e) {
+						throw new ConfigurationException(e);
 					}
 				}
 			}
@@ -339,12 +334,9 @@ public class PipeLine implements ICacheEnabled<String,String>, HasStatistics {
 		requestSizeStats = new SizeStatisticsKeeper("- pipeline in");
 
 		if (isTransacted() && getTransactionTimeout()>0) {
-			String systemTransactionTimeout = Misc.getSystemTransactionTimeout();
-			if (systemTransactionTimeout!=null && StringUtils.isNumeric(systemTransactionTimeout)) {
-				int stt = Integer.parseInt(systemTransactionTimeout);
-				if (getTransactionTimeout()>stt) {
-					ConfigurationWarnings.add(null, log, getLogPrefix()+"has a transaction timeout ["+getTransactionTimeout()+"] which exceeds the system transaction timeout ["+stt+"]");
-				}
+			Integer maximumTransactionTimeout = Misc.getMaximumTransactionTimeout();
+			if (maximumTransactionTimeout != null && getTransactionTimeout() > maximumTransactionTimeout) {
+				ConfigurationWarnings.add(null, log, getLogPrefix()+"has a transaction timeout ["+getTransactionTimeout()+"] which exceeds the maximum transaction timeout ["+maximumTransactionTimeout+"]");
 			}
 		}
 
@@ -624,6 +616,7 @@ public class PipeLine implements ICacheEnabled<String,String>, HasStatistics {
 		log.debug(getLogPrefix()+"successfully closed pipeline");
 
 	}
+
 	public TransactionDefinition getTxDef() {
 		return txDef;
 	}
@@ -676,34 +669,34 @@ public class PipeLine implements ICacheEnabled<String,String>, HasStatistics {
 
 
 	@IbisDoc({"10", "Request validator, or combined validator for request and response"})
-	public void setInputValidator(IPipe inputValidator) {
+	public void setInputValidator(IValidatorPipe inputValidator) {
 		this.inputValidator = inputValidator;
 	}
-	public IPipe getInputValidator() {
+	public IValidatorPipe getInputValidator() {
 		return inputValidator;
 	}
 
 	@IbisDoc({"20", "Optional pipe to validate the response. Can be specified if the response cannot be validated by the request validator"})
-	public void setOutputValidator(IPipe outputValidator) {
+	public void setOutputValidator(IValidatorPipe outputValidator) {
 		this.outputValidator = outputValidator;
 	}
-	public IPipe getOutputValidator() {
+	public IValidatorPipe getOutputValidator() {
 		return outputValidator;
 	}
 
 	@IbisDoc({"30", "Optional pipe to extract the request message from its envelope"})
-	public void setInputWrapper(IPipe inputWrapper) {
+	public void setInputWrapper(IWrapperPipe inputWrapper) {
 		this.inputWrapper = inputWrapper;
 	}
-	public IPipe getInputWrapper() {
+	public IWrapperPipe getInputWrapper() {
 		return inputWrapper;
 	}
 
 	@IbisDoc({"40", "Optional pipe to wrap the response message in an envelope"})
-	public void setOutputWrapper(IPipe outputWrapper) {
+	public void setOutputWrapper(IWrapperPipe outputWrapper) {
 		this.outputWrapper = outputWrapper;
 	}
-	public IPipe getOutputWrapper() {
+	public IWrapperPipe getOutputWrapper() {
 		return outputWrapper;
 	}
 
@@ -731,7 +724,7 @@ public class PipeLine implements ICacheEnabled<String,String>, HasStatistics {
 
 	@Override
 	@IbisDoc({"70", "Cache of results"})
-	public void registerCache(ICacheAdapter<String,String> cache) {
+	public void setCache(ICacheAdapter<String,String> cache) {
 		this.cache=cache;
 	}
 	@Override
@@ -800,10 +793,10 @@ public class PipeLine implements ICacheEnabled<String,String>, HasStatistics {
 	@IbisDoc({"4", "if set to <code>true, messages will be processed under transaction control. (see below)</code>", "<code>false</code>"})
 	public void setTransacted(boolean transacted) {
 		if (transacted) {
-			ConfigurationWarnings.add(null, log, getLogPrefix()+"implementing setting of transacted=true as transactionAttribute=Required");
+			ConfigurationWarnings.add(getAdapter(), log, getLogPrefix()+"implementing setting of transacted=true as transactionAttribute=Required", SuppressKeys.TRANSACTION_SUPPRESS_KEY, getAdapter());
 			setTransactionAttributeNum(TransactionDefinition.PROPAGATION_REQUIRED);
 		} else {
-			ConfigurationWarnings.add(null, log, getLogPrefix()+"implementing setting of transacted=false as transactionAttribute=Supports");
+			ConfigurationWarnings.add(getAdapter(), log, getLogPrefix()+"implementing setting of transacted=false as transactionAttribute=Supports", SuppressKeys.TRANSACTION_SUPPRESS_KEY, getAdapter());
 			setTransactionAttributeNum(TransactionDefinition.PROPAGATION_SUPPORTS);
 		}
 	}
